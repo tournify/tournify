@@ -7,15 +7,15 @@ import (
 func TestCreateGroupTournament(t *testing.T) {
 	teamCount := 8
 	meetCount := 2
-	tournament := CreateTournament(teamCount, meetCount, TournamentTypeGroup)
-	if len(tournament.Games) < 1 {
+	tournament := CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
+	if len(tournament.GetTeams()) < 1 {
 		t.Errorf("No games were created for the tournament")
 	}
-	if len(tournament.Teams) != teamCount {
+	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
-	if len(tournament.Games) != NumberOfGames(teamCount, 2, meetCount) {
-		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.Games), NumberOfGames(teamCount, 2, meetCount))
+	if len(tournament.GetGames()) != NumberOfGames(teamCount, 2, meetCount) {
+		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGames(teamCount, 2, meetCount))
 	}
 }
 

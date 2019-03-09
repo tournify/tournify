@@ -5,69 +5,54 @@ import (
 	"sort"
 )
 
+type TournamentInterface interface {
+	GetID() int
+	GetType() int
+	GetTeams() []TeamInterface
+	GetGroups() []TournamentGroupInterface
+	GetGames() []GameInterface
+}
+
 type Tournament struct {
 	ID     int
 	Type   TournamentType // Is it elimination or group or ladder or poker? What is a type?
-	Teams  []Team
-	Groups []TournamentGroup
-	Games  []Game
+	Teams  []TeamInterface
+	Groups []TournamentGroupInterface
+	Games  []GameInterface
 }
 
-// TournamentGroup is for group tournaments only
-type TournamentGroup struct {
-	ID         int
-	Tournament Tournament
-	Teams      []Team
-	Games      []Game
+func (t Tournament) GetID() int {
+	return t.ID
 }
 
-type TournamentTeamStats struct {
-	ID            int
-	Tournament    Tournament
-	Group         TournamentGroup
-	Team          Team
-	Played        int
-	Wins          int
-	Losses        int
-	Ties          int
-	PointsFor     float64
-	PointsAgainst float64
-	Diff          float64
-	Points        int
+func (t Tournament) GetType() int {
+	return int(t.Type)
 }
 
-// TODO is this a good way of defining tournament types?
-//  How can this be extended by others who want to build on this code without modifying the library?
-type TournamentType int
-
-const (
-	TournamentTypeGroup             TournamentType = 0
-	TournamentTypeElimination       TournamentType = 1
-	TournamentTypeDoubleElimination TournamentType = 2
-)
-
-func (tournamentType TournamentType) String() string {
-	names := [...]string{"Group", "Elimination", "DoubleElimination"}
-
-	if tournamentType < TournamentTypeGroup || tournamentType > TournamentTypeDoubleElimination {
-		return "Unknown"
-	}
-
-	return names[tournamentType]
+func (t Tournament) GetTeams() []TeamInterface {
+	return t.Teams
 }
 
-func CreateTournament(teamCount int, meetCount int, tournamentType TournamentType) Tournament {
-	var teams []Team
+func (t Tournament) GetGroups() []TournamentGroupInterface {
+	return t.Groups
+}
+
+func (t Tournament) GetGames() []GameInterface {
+	return t.Games
+}
+
+func CreateTournament(teamCount int, meetCount int, tournamentType int) TournamentInterface {
+	var teams []TeamInterface
 
 	for i := 0; i < teamCount; i++ {
-		teams = append(teams, Team{ID: i})
+		teams = append(teams, &Team{ID: i})
 	}
 
 	return CreateTournamentFromTeams(teams, meetCount, tournamentType)
 }
 
-func CreateTournamentFromTeams(teams []Team, meetCount int, tournamentType TournamentType) Tournament {
-	if tournamentType == TournamentTypeGroup {
+func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentType int) TournamentInterface {
+	if TournamentType(tournamentType) == TournamentTypeGroup {
 		// It is recommended to call CreateGroupTournamentFromTeams directly as we try to automatically determine a group size and count here
 		groupCount := len(teams) / 4 // We assume 4 teams per group by default
 		if groupCount < 1 {
@@ -75,60 +60,61 @@ func CreateTournamentFromTeams(teams []Team, meetCount int, tournamentType Tourn
 		}
 		return CreateGroupTournamentFromTeams(teams, groupCount, meetCount)
 	}
-	return Tournament{}
+	return nil
 }
 
-func CreateGroupTournamentFromTeams(teams []Team, groupCount int, meetCount int) Tournament {
-	var groups []TournamentGroup
+func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetCount int) TournamentInterface {
+	var groups []TournamentGroupInterface
 
 	for i := 0; i < groupCount; i++ {
-		groups = append(groups, TournamentGroup{ID: i})
+		groups = append(groups, &TournamentGroup{ID: i})
 	}
 
 	for i, team := range teams {
 		groupIndex := i % (len(groups))
-		groups[groupIndex].Teams = append(groups[groupIndex].Teams, team)
+		groups[groupIndex].AppendTeam(team)
 	}
 
 	return CreateGroupTournamentFromGroups(groups, meetCount)
 }
 
-func CreateGroupTournamentFromGroups(groups []TournamentGroup, meetCount int) Tournament {
+func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCount int) TournamentInterface {
 	// Works best for an even amount of teams in every group
-	var games []Game
-	var teams []Team
+	var games []GameInterface
+	var teams []TeamInterface
 	gameIndex := 0
 	for gi, group := range groups {
-		if len(group.Teams) < 4 {
+		groupteams := group.GetTeams()
+		if len(groupteams) < 4 {
 			// TODO remove panic
-			panic("Group must contain at least 4 teams, currently" + string(len(group.Teams)))
+			panic("Group must contain at least 4 teams, currently" + string(len(groupteams)))
 		}
-		teams = append(teams, group.Teams...)
+		teams = append(teams, group.GetTeams()...)
 		// Loop through meet count
 		for mi := 0; mi < meetCount; mi++ {
-			var homeTeams []Team
-			var awayTeams []Team
+			var homeTeams []TeamInterface
+			var awayTeams []TeamInterface
 			// Everyone meets everyone once
 			// We begin by taking our array of teams like 0,1,2,3, and splitting it
 			if mi%2 == 0 {
-				homeTeams = group.Teams[0:(len(group.Teams) / 2)]
-				awayTeams = group.Teams[(len(group.Teams) / 2):]
+				homeTeams = group.GetTeams()[0:(len(group.GetTeams()) / 2)]
+				awayTeams = group.GetTeams()[(len(group.GetTeams()) / 2):]
 			} else {
-				awayTeams = group.Teams[0:(len(group.Teams) / 2)]
-				homeTeams = group.Teams[(len(group.Teams) / 2):]
+				awayTeams = group.GetTeams()[0:(len(group.GetTeams()) / 2)]
+				homeTeams = group.GetTeams()[(len(group.GetTeams()) / 2):]
 			}
-			for i := 0; i < len(group.Teams)-1; i++ {
+			for i := 0; i < len(group.GetTeams())-1; i++ {
 				// Now we have home teams of 0,1 and away teams of 2,3
 				// This means 0 will meet 2 and 1 will meet 3
 				for hi, hteam := range homeTeams {
 					game := Game{HomeTeam: hteam, AwayTeam: awayTeams[hi]}
-					groups[gi].Games = append(groups[gi].Games, game)
-					hteam.Games = append(hteam.Games, game)
+					groups[gi].AppendGame(game)
+					hteam.AppendGame(game)
 					games = append(games, game)
-					awayTeams[hi].Games = append(awayTeams[hi].Games, game)
+					awayTeams[hi].AppendGame(game)
 					gameIndex++
 				}
-				var x, y, z Team
+				var x, y, z TeamInterface
 				// We keep the first home team in the same position and rotate all others
 				x, homeTeams = homeTeams[0], homeTeams[1:]
 				// Take the first away team
@@ -140,7 +126,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroup, meetCount int) To
 				// and append it to the end of away teams
 				awayTeams = append(awayTeams, y)
 				// Put the first home team back in first position of home array
-				homeTeams = append([]Team{x}, homeTeams...)
+				homeTeams = append([]TeamInterface{x}, homeTeams...)
 			}
 		}
 	}
@@ -151,17 +137,17 @@ func NumberOfGames(teamCount int, groupCount int, meetCount int) int {
 	return ((((teamCount / groupCount) - 1) * ((teamCount / groupCount) / 2)) * groupCount) * meetCount
 }
 
-func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePoints int) (error, []TournamentTeamStats) {
+func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePoints int) (error, []TeamStatsInterface) {
 	if t.Type != TournamentTypeGroup {
 		return errors.New("Can not get stats for tournament type TournamentTypeGroup"), nil
 	}
-	var stats []TournamentTeamStats
+	var stats []TeamStatsInterface
 
 	for _, group := range t.Groups {
-		var groupStats []TournamentTeamStats
+		var groupStats []TeamStatsInterface
 
-		for _, team := range group.Teams {
-			stat := TournamentTeamStats{
+		for _, team := range group.GetTeams() {
+			stat := TeamStats{
 				Group:         group,
 				Team:          team,
 				Played:        0,
@@ -172,23 +158,23 @@ func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePo
 				PointsAgainst: 0.00,
 				Points:        0,
 				Diff:          0.00}
-			for _, game := range team.Games {
-				if game.HomeTeam.ID == team.ID {
-					stat.PointsFor = game.HomeScore.Points
-					stat.PointsAgainst = game.AwayScore.Points
-					if game.HomeScore.Points > game.AwayScore.Points {
+			for _, game := range team.GetGames() {
+				if game.GetHomeTeam().GetID() == team.GetID() {
+					stat.PointsFor = game.GetHomeScore().GetPoints()
+					stat.PointsAgainst = game.GetAwayScore().GetPoints()
+					if game.GetHomeScore().GetPoints() > game.GetAwayScore().GetPoints() {
 						stat.Wins++
-					} else if game.HomeScore.Points == game.AwayScore.Points {
+					} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
 						stat.Ties++
 					} else {
 						stat.Losses++
 					}
-				} else if game.AwayTeam.ID == team.ID {
-					stat.PointsFor = game.AwayScore.Points
-					stat.PointsAgainst = game.HomeScore.Points
-					if game.HomeScore.Points < game.AwayScore.Points {
+				} else if game.GetAwayTeam().GetID() == team.GetID() {
+					stat.PointsFor = game.GetAwayScore().GetPoints()
+					stat.PointsAgainst = game.GetHomeScore().GetPoints()
+					if game.GetHomeScore().GetPoints() < game.GetAwayScore().GetPoints() {
 						stat.Wins++
-					} else if game.HomeScore.Points == game.AwayScore.Points {
+					} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
 						stat.Ties++
 					} else {
 						stat.Losses++
@@ -196,13 +182,13 @@ func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePo
 				}
 				stat.Played++
 			}
-			stat.Points = stat.Wins * winPoints
-			stat.Points += stat.Losses * lossPoints
-			stat.Points += stat.Ties * tiePoints
+			stat.AddPoints(stat.Wins * winPoints)
+			stat.AddPoints(stat.Losses * lossPoints)
+			stat.AddPoints(stat.Ties * tiePoints)
 
-			stat.Diff = stat.PointsFor - stat.PointsAgainst
+			stat.Diff = stat.GetPointsFor() - stat.GetPointsAgainst()
 
-			groupStats = append(groupStats, stat)
+			groupStats = append(groupStats, &stat)
 		}
 		groupStats = SortTournamentStats(groupStats)
 		stats = append(stats, groupStats...)
@@ -210,21 +196,21 @@ func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePo
 	return nil, stats
 }
 
-func SortTournamentStats(stats []TournamentTeamStats) []TournamentTeamStats {
+func SortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {
 	sort.Slice(stats, func(i, j int) bool {
-		if stats[i].Points > stats[j].Points {
+		if stats[i].GetPoints() > stats[j].GetPoints() {
 			return true
-		} else if stats[i].Points < stats[j].Points {
+		} else if stats[i].GetPoints() < stats[j].GetPoints() {
 			return false
 		} else {
-			if stats[i].Diff > stats[j].Diff {
+			if stats[i].GetDiff() > stats[j].GetDiff() {
 				return true
-			} else if stats[i].Diff < stats[j].Diff {
+			} else if stats[i].GetDiff() < stats[j].GetDiff() {
 				return false
 			} else {
-				if stats[i].PointsFor > stats[j].PointsFor {
+				if stats[i].GetPointsFor() > stats[j].GetPointsFor() {
 					return true
-				} else if stats[i].PointsFor < stats[j].PointsFor {
+				} else if stats[i].GetPointsFor() < stats[j].GetPointsFor() {
 					return false
 				}
 			}
