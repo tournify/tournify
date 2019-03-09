@@ -1,7 +1,11 @@
 package gotournament
 
+import (
+	"errors"
+	"sort"
+)
+
 type TeamStatsInterface interface {
-	GetID() int
 	GetTournament() TournamentInterface
 	GetGroup() TournamentGroupInterface
 	GetTeam() TeamInterface
@@ -17,7 +21,6 @@ type TeamStatsInterface interface {
 }
 
 type TeamStats struct {
-	ID            int
 	Tournament    TournamentInterface
 	Group         TournamentGroupInterface
 	Team          TeamInterface
@@ -29,10 +32,6 @@ type TeamStats struct {
 	PointsAgainst float64
 	Diff          float64
 	Points        int
-}
-
-func (t *TeamStats) GetID() int {
-	return t.ID
 }
 
 func (t *TeamStats) GetTournament() TournamentInterface {
@@ -81,4 +80,87 @@ func (t *TeamStats) GetPoints() int {
 
 func (t *TeamStats) AddPoints(points int) {
 	t.Points += points
+}
+
+func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints int, tiePoints int) (error, []TeamStatsInterface) {
+	if t.GetType() != int(TournamentTypeGroup) {
+		return errors.New("can not get stats for tournament type TournamentTypeGroup"), nil
+	}
+	var stats []TeamStatsInterface
+
+	for _, group := range t.GetGroups() {
+		var groupStats []TeamStatsInterface
+
+		for _, team := range group.GetTeams() {
+			stat := TeamStats{
+				Group:         group,
+				Team:          team,
+				Played:        0,
+				Wins:          0,
+				Losses:        0,
+				Ties:          0,
+				PointsFor:     0.00,
+				PointsAgainst: 0.00,
+				Points:        0,
+				Diff:          0.00}
+			for _, game := range team.GetGames() {
+				if game.GetHomeTeam().GetID() == team.GetID() {
+					stat.PointsFor = game.GetHomeScore().GetPoints()
+					stat.PointsAgainst = game.GetAwayScore().GetPoints()
+					if game.GetHomeScore().GetPoints() > game.GetAwayScore().GetPoints() {
+						stat.Wins++
+					} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
+						stat.Ties++
+					} else {
+						stat.Losses++
+					}
+				} else if game.GetAwayTeam().GetID() == team.GetID() {
+					stat.PointsFor = game.GetAwayScore().GetPoints()
+					stat.PointsAgainst = game.GetHomeScore().GetPoints()
+					if game.GetHomeScore().GetPoints() < game.GetAwayScore().GetPoints() {
+						stat.Wins++
+					} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
+						stat.Ties++
+					} else {
+						stat.Losses++
+					}
+				}
+				stat.Played++
+			}
+			stat.AddPoints(stat.Wins * winPoints)
+			stat.AddPoints(stat.Losses * lossPoints)
+			stat.AddPoints(stat.Ties * tiePoints)
+
+			stat.Diff = stat.GetPointsFor() - stat.GetPointsAgainst()
+
+			groupStats = append(groupStats, &stat)
+		}
+		groupStats = sortTournamentStats(groupStats)
+		stats = append(stats, groupStats...)
+	}
+	return nil, stats
+}
+
+func sortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {
+	sort.Slice(stats, func(i, j int) bool {
+		if stats[i].GetPoints() > stats[j].GetPoints() {
+			return true
+		} else if stats[i].GetPoints() < stats[j].GetPoints() {
+			return false
+		} else {
+			if stats[i].GetDiff() > stats[j].GetDiff() {
+				return true
+			} else if stats[i].GetDiff() < stats[j].GetDiff() {
+				return false
+			} else {
+				if stats[i].GetPointsFor() > stats[j].GetPointsFor() {
+					return true
+				} else if stats[i].GetPointsFor() < stats[j].GetPointsFor() {
+					return false
+				}
+			}
+		}
+		return true
+	})
+	return stats
 }

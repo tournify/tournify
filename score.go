@@ -13,14 +13,14 @@ type Score struct {
 
 // 'id', 'game_id', 'team_id', 'score'
 
-func (s Score) GetID() int {
+func (s *Score) GetID() int {
 	return s.ID
 }
 
-func (s Score) GetPoints() float64 {
+func (s *Score) GetPoints() float64 {
 	return s.Points
 }
 
-func (s Score) SetScore(points float64) {
+func (s *Score) SetPoints(points float64) {
 	s.Points = points
 }

@@ -23,39 +23,45 @@ type Game struct {
 	Teams      []TeamInterface
 }
 
-func (g Game) SetScore(homeScore float64, awayScore float64) {
+func (g *Game) SetScore(homeScore float64, awayScore float64) {
+	if g.HomeScore == nil {
+		g.HomeScore = &Score{}
+	}
+	if g.AwayScore == nil {
+		g.AwayScore = &Score{}
+	}
 	g.HomeScore.SetPoints(homeScore)
 	g.AwayScore.SetPoints(awayScore)
 }
 
-func (g Game) GetID() int {
+func (g *Game) GetID() int {
 	return g.ID
 }
 
-func (g Game) GetTournament() TournamentInterface {
+func (g *Game) GetTournament() TournamentInterface {
 	return g.Tournament
 }
 
-func (g Game) GetHomeTeam() TeamInterface {
+func (g *Game) GetHomeTeam() TeamInterface {
 	return g.HomeTeam
 }
 
-func (g Game) GetAwayTeam() TeamInterface {
+func (g *Game) GetAwayTeam() TeamInterface {
 	return g.AwayTeam
 }
 
-func (g Game) GetHomeScore() ScoreInterface {
+func (g *Game) GetHomeScore() ScoreInterface {
 	return g.HomeScore
 }
 
-func (g Game) GetAwayScore() ScoreInterface {
+func (g *Game) GetAwayScore() ScoreInterface {
 	return g.AwayScore
 }
 
-func (g Game) GetTeams() []TeamInterface {
+func (g *Game) GetTeams() []TeamInterface {
 	return g.Teams
 }
 
-func (g Game) GetScores() []ScoreInterface {
+func (g *Game) GetScores() []ScoreInterface {
 	return g.Scores
 }

@@ -36,20 +36,3 @@ func TestNumberOfGames(t *testing.T) {
 		t.Errorf("NumberOfGames %d %s", NumberOfGames(8, 2, 2), "!= 24")
 	}
 }
-
-func TestGroupTournamentStats(t *testing.T) {
-	//teamCount := 8
-	//meetCount := 2
-	//tournament := CreateTournament(teamCount, meetCount, TournamentTypeGroup)
-	//
-	//for _, group := range tournament.Groups {
-	//	homeScore := 0
-	//	awayScore := len(group.Games)
-	//	for i, _ := range group.Games {
-	//		group.Games[i].SetScore(float64(homeScore), float64(awayScore))
-	//		homeScore++
-	//		awayScore--
-	//		//fmt.Println(group.Games[i].ID, group.Games[i].HomeTeam.ID, group.Games[i].HomeScore.Points, group.Games[i].AwayTeam.ID, group.Games[i].AwayScore.Points)
-	//	}
-	//}
-}
