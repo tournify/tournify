@@ -5,8 +5,9 @@ import (
 	"sort"
 )
 
+// TeamStatsInterface is used to show team statistics. Currently this is specifically made for
+// group tournaments where there is a need to rank teams.
 type TeamStatsInterface interface {
-	GetTournament() TournamentInterface
 	GetGroup() TournamentGroupInterface
 	GetTeam() TeamInterface
 	GetPlayed() int
@@ -20,6 +21,7 @@ type TeamStatsInterface interface {
 	AddPoints(points int)
 }
 
+// TeamStats is a default struct used as an example of how structs can be implemented for gotournament
 type TeamStats struct {
 	Tournament    TournamentInterface
 	Group         TournamentGroupInterface
@@ -30,61 +32,70 @@ type TeamStats struct {
 	Ties          int
 	PointsFor     float64
 	PointsAgainst float64
-	Diff          float64
 	Points        int
 }
 
-func (t *TeamStats) GetTournament() TournamentInterface {
-	return t.Tournament
-}
-
+// GetGroup returns the Group that the statistics were generated for, stats are directly related to a team and the group they are in.
 func (t *TeamStats) GetGroup() TournamentGroupInterface {
 	return t.Group
 }
 
+// GetTeam returns the Team that the statistics were generated for, stats are directly related to a team and the group they are in.
 func (t *TeamStats) GetTeam() TeamInterface {
 	return t.Team
 }
 
+// GetPlayed returns the number of games played
 func (t *TeamStats) GetPlayed() int {
 	return t.Played
 }
 
+// GetWins returns the number of won games
 func (t *TeamStats) GetWins() int {
 	return t.Wins
 }
 
+// GetLosses returns the number of lost games
 func (t *TeamStats) GetLosses() int {
 	return t.Losses
 }
 
+// GetTies returns the number of games resulting in a tied game
 func (t *TeamStats) GetTies() int {
 	return t.Ties
 }
 
+// GetPointsFor returns the number of goals or points that this team has made
 func (t *TeamStats) GetPointsFor() float64 {
 	return t.PointsFor
 }
 
+// GetPointsAgainst returns the number of goals or points that other teams have made against this team
 func (t *TeamStats) GetPointsAgainst() float64 {
 	return t.PointsAgainst
 }
 
+// GetDiff returns the difference of PointsFor and PointsAgainst
 func (t *TeamStats) GetDiff() float64 {
-	return t.Diff
+	return t.PointsFor - t.PointsAgainst
 }
 
+// GetPoints returns the number of points the team has based on wins, losses or ties
 func (t *TeamStats) GetPoints() int {
 	return t.Points
 }
 
+// AddPoints adds the specified number of points to Points
 func (t *TeamStats) AddPoints(points int) {
 	t.Points += points
 }
 
-func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints int, tiePoints int) (error, []TeamStatsInterface) {
+// GetGroupTournamentStats takes 4 inouts. The first input is the tournament itself.
+// The other three input defines how many points a team should get for a win, loss or tie. The standard is 3, 0, 1 but
+// it can vary depending on the tournament.
+func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints int, tiePoints int) ([]TeamStatsInterface, error) {
 	if t.GetType() != int(TournamentTypeGroup) {
-		return errors.New("can not get stats for tournament type TournamentTypeGroup"), nil
+		return nil, errors.New("can not get stats for tournament type TournamentTypeGroup")
 	}
 	var stats []TeamStatsInterface
 
@@ -101,8 +112,7 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 				Ties:          0,
 				PointsFor:     0.00,
 				PointsAgainst: 0.00,
-				Points:        0,
-				Diff:          0.00}
+				Points:        0}
 			for _, game := range team.GetGames() {
 				if game.GetHomeTeam().GetID() == team.GetID() {
 					stat.PointsFor = game.GetHomeScore().GetPoints()
@@ -131,14 +141,12 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 			stat.AddPoints(stat.Losses * lossPoints)
 			stat.AddPoints(stat.Ties * tiePoints)
 
-			stat.Diff = stat.GetPointsFor() - stat.GetPointsAgainst()
-
 			groupStats = append(groupStats, &stat)
 		}
 		groupStats = sortTournamentStats(groupStats)
 		stats = append(stats, groupStats...)
 	}
-	return nil, stats
+	return stats, nil
 }
 
 func sortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {

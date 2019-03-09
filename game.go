@@ -1,8 +1,11 @@
 package gotournament
 
+// GameInterface defines the needed methods for games used in the library.
+// A Game is a flexible entity and conforms to what you might typically find in Soccer where
+// you have a home and away team and a score for each team but the interface also tries to
+// allow for other types of games where the number of teams and scores is not limited to 2
 type GameInterface interface {
 	GetID() int
-	GetTournament() TournamentInterface
 	GetHomeTeam() TeamInterface // TODO home and away team could just be first or last team in team slice?
 	GetAwayTeam() TeamInterface
 	GetHomeScore() ScoreInterface
@@ -12,13 +15,15 @@ type GameInterface interface {
 	SetScore(homeScore float64, awayScore float64)
 }
 
+// Game is a default struct used as an example of how structs can be implemented for gotournament
 type Game struct {
-	ID         int
-	Tournament TournamentInterface
-	Scores     []ScoreInterface
-	Teams      []TeamInterface
+	ID     int
+	Scores []ScoreInterface
+	Teams  []TeamInterface
 }
 
+// SetScore sets home and away scores for home and away teams, this function is needed
+// for games with a home and away team.
 func (g *Game) SetScore(homeScore float64, awayScore float64) {
 	if len(g.Scores) < 1 {
 		g.Scores = append(g.Scores, &Score{}, &Score{})
@@ -29,14 +34,12 @@ func (g *Game) SetScore(homeScore float64, awayScore float64) {
 	g.Scores[1].SetPoints(awayScore)
 }
 
+// GetID returns the id of the game
 func (g *Game) GetID() int {
 	return g.ID
 }
 
-func (g *Game) GetTournament() TournamentInterface {
-	return g.Tournament
-}
-
+// GetHomeTeam returns the first team in the Teams slice
 func (g *Game) GetHomeTeam() TeamInterface {
 	if len(g.Scores) < 1 {
 		g.Teams = append(g.Teams, &Team{})
@@ -44,6 +47,7 @@ func (g *Game) GetHomeTeam() TeamInterface {
 	return g.Teams[0]
 }
 
+// GetAwayTeam returns the second team in the Teams slice
 func (g *Game) GetAwayTeam() TeamInterface {
 	if len(g.Scores) < 1 {
 		g.Teams = append(g.Teams, &Team{}, &Team{})
@@ -53,6 +57,7 @@ func (g *Game) GetAwayTeam() TeamInterface {
 	return g.Teams[1]
 }
 
+// GetHomeScore returns the first score in the Scores slice
 func (g *Game) GetHomeScore() ScoreInterface {
 	if len(g.Scores) < 1 {
 		g.Scores = append(g.Scores, &Score{})
@@ -60,6 +65,7 @@ func (g *Game) GetHomeScore() ScoreInterface {
 	return g.Scores[0]
 }
 
+// GetAwayScore returns the second score in the Scores slice
 func (g *Game) GetAwayScore() ScoreInterface {
 	if len(g.Scores) < 1 {
 		g.Scores = append(g.Scores, &Score{}, &Score{})
@@ -69,10 +75,12 @@ func (g *Game) GetAwayScore() ScoreInterface {
 	return g.Scores[1]
 }
 
+// GetTeams returns a slice of Team
 func (g *Game) GetTeams() []TeamInterface {
 	return g.Teams
 }
 
+// GetScores returns a slice of Score
 func (g *Game) GetScores() []ScoreInterface {
 	return g.Scores
 }

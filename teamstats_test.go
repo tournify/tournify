@@ -33,7 +33,7 @@ func TestGroupTournamentStats(t *testing.T) {
 	for _, group := range tournament.GetGroups() {
 		homeScore := 0
 		awayScore := len(group.GetGames())
-		for i, _ := range group.GetGames() {
+		for i := range group.GetGames() {
 			group.GetGames()[i].SetScore(float64(homeScore), float64(awayScore))
 			homeScore++
 			awayScore--

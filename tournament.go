@@ -1,41 +1,43 @@
 package gotournament
 
+// TournamentInterface defines the methods needed to handle tournaments.
 type TournamentInterface interface {
-	GetID() int
 	GetType() int
 	GetTeams() []TeamInterface
 	GetGroups() []TournamentGroupInterface
 	GetGames() []GameInterface
 }
 
+// Tournament is a default struct used as an example of how structs can be implemented for gotournament
 type Tournament struct {
-	ID     int
 	Type   TournamentType // Is it elimination or group or ladder or poker? What is a type?
 	Teams  []TeamInterface
 	Groups []TournamentGroupInterface
 	Games  []GameInterface
 }
 
-func (t Tournament) GetID() int {
-	return t.ID
-}
-
+// GetType returns the type of tournament
 func (t Tournament) GetType() int {
 	return int(t.Type)
 }
 
+// GetTeams returns the team slice
 func (t Tournament) GetTeams() []TeamInterface {
 	return t.Teams
 }
 
+// GetGroups returns the group slice
 func (t Tournament) GetGroups() []TournamentGroupInterface {
 	return t.Groups
 }
 
+// GetGames returns the game slice
 func (t Tournament) GetGames() []GameInterface {
 	return t.Games
 }
 
+// CreateTournament creates a tournament with the simplest input. It is recommended to create a slice with
+// specific use via CreateTournamentFromTeams as this method will generate it's own Teams as a sort of placeholder.
 func CreateTournament(teamCount int, meetCount int, tournamentType int) TournamentInterface {
 	var teams []TeamInterface
 
@@ -46,6 +48,7 @@ func CreateTournament(teamCount int, meetCount int, tournamentType int) Tourname
 	return CreateTournamentFromTeams(teams, meetCount, tournamentType)
 }
 
+// CreateTournamentFromTeams takes a slice of teams and generates a tournament of the specified type
 func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentType int) TournamentInterface {
 	if TournamentType(tournamentType) == TournamentTypeGroup {
 		// It is recommended to call CreateGroupTournamentFromTeams directly as we try to automatically determine a group size and count here
@@ -58,6 +61,7 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentT
 	return nil
 }
 
+// CreateGroupTournamentFromTeams takes a slice of teams and generates a group tournament
 func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetCount int) TournamentInterface {
 	var groups []TournamentGroupInterface
 
@@ -73,6 +77,7 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 	return CreateGroupTournamentFromGroups(groups, meetCount)
 }
 
+// CreateGroupTournamentFromGroups takes a slice of groups that contain teams and returns a group tournament
 func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCount int) TournamentInterface {
 	// Works best for an even amount of teams in every group
 	var games []GameInterface
@@ -128,6 +133,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
 }
 
-func NumberOfGames(teamCount int, groupCount int, meetCount int) int {
+// NumberOfGamesForGroupTournament Calculates the number of games in a group tournament based on number of teams, groups and unique encounters.
+func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount int) int {
 	return ((((teamCount / groupCount) - 1) * ((teamCount / groupCount) / 2)) * groupCount) * meetCount
 }

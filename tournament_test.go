@@ -14,25 +14,25 @@ func TestCreateGroupTournament(t *testing.T) {
 	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
-	if len(tournament.GetGames()) != NumberOfGames(teamCount, 2, meetCount) {
-		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGames(teamCount, 2, meetCount))
+	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, 2, meetCount) {
+		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForGroupTournament(teamCount, 2, meetCount))
 	}
 }
 
-func TestNumberOfGames(t *testing.T) {
-	if NumberOfGames(2, 1, 1) != 1 {
-		t.Errorf("NumberOfGames %d %s", NumberOfGames(2, 1, 1), "!= 1")
+func TestNumberOfGamesForGroupTournament(t *testing.T) {
+	if NumberOfGamesForGroupTournament(2, 1, 1) != 1 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(2, 1, 1), "!= 1")
 	}
-	if NumberOfGames(4, 1, 1) != 6 {
-		t.Errorf("NumberOfGames %d %s", NumberOfGames(4, 1, 1), "!= 6")
+	if NumberOfGamesForGroupTournament(4, 1, 1) != 6 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(4, 1, 1), "!= 6")
 	}
-	if NumberOfGames(8, 1, 1) != 28 {
-		t.Errorf("NumberOfGames %d %s", NumberOfGames(8, 1, 1), "!= 28")
+	if NumberOfGamesForGroupTournament(8, 1, 1) != 28 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(8, 1, 1), "!= 28")
 	}
-	if NumberOfGames(8, 2, 1) != 12 {
-		t.Errorf("NumberOfGames %d %s", NumberOfGames(8, 2, 1), "!= 12")
+	if NumberOfGamesForGroupTournament(8, 2, 1) != 12 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(8, 2, 1), "!= 12")
 	}
-	if NumberOfGames(8, 2, 2) != 24 {
-		t.Errorf("NumberOfGames %d %s", NumberOfGames(8, 2, 2), "!= 24")
+	if NumberOfGamesForGroupTournament(8, 2, 2) != 24 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(8, 2, 2), "!= 24")
 	}
 }
