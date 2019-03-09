@@ -1,7 +1,7 @@
 package gotournament
 
 import (
-	"github.com/murlokswarm/errors"
+	"errors"
 	"sort"
 )
 
@@ -139,7 +139,7 @@ func NumberOfGames(teamCount int, groupCount int, meetCount int) int {
 
 func (t Tournament) GetGroupTournamentStats(winPoints int, lossPoints int, tiePoints int) (error, []TeamStatsInterface) {
 	if t.Type != TournamentTypeGroup {
-		return errors.New("Can not get stats for tournament type TournamentTypeGroup"), nil
+		return errors.New("can not get stats for tournament type TournamentTypeGroup"), nil
 	}
 	var stats []TeamStatsInterface
 
