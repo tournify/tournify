@@ -15,23 +15,18 @@ type GameInterface interface {
 type Game struct {
 	ID         int
 	Tournament TournamentInterface
-	HomeTeam   TeamInterface
-	AwayTeam   TeamInterface
-	HomeScore  ScoreInterface
-	AwayScore  ScoreInterface
 	Scores     []ScoreInterface
 	Teams      []TeamInterface
 }
 
 func (g *Game) SetScore(homeScore float64, awayScore float64) {
-	if g.HomeScore == nil {
-		g.HomeScore = &Score{}
+	if len(g.Scores) < 1 {
+		g.Scores = append(g.Scores, &Score{}, &Score{})
+	} else if len(g.Scores) < 2 {
+		g.Scores = append(g.Scores, &Score{})
 	}
-	if g.AwayScore == nil {
-		g.AwayScore = &Score{}
-	}
-	g.HomeScore.SetPoints(homeScore)
-	g.AwayScore.SetPoints(awayScore)
+	g.Scores[0].SetPoints(homeScore)
+	g.Scores[1].SetPoints(awayScore)
 }
 
 func (g *Game) GetID() int {
@@ -43,19 +38,35 @@ func (g *Game) GetTournament() TournamentInterface {
 }
 
 func (g *Game) GetHomeTeam() TeamInterface {
-	return g.HomeTeam
+	if len(g.Scores) < 1 {
+		g.Teams = append(g.Teams, &Team{})
+	}
+	return g.Teams[0]
 }
 
 func (g *Game) GetAwayTeam() TeamInterface {
-	return g.AwayTeam
+	if len(g.Scores) < 1 {
+		g.Teams = append(g.Teams, &Team{}, &Team{})
+	} else if len(g.Scores) < 2 {
+		g.Teams = append(g.Teams, &Team{})
+	}
+	return g.Teams[1]
 }
 
 func (g *Game) GetHomeScore() ScoreInterface {
-	return g.HomeScore
+	if len(g.Scores) < 1 {
+		g.Scores = append(g.Scores, &Score{})
+	}
+	return g.Scores[0]
 }
 
 func (g *Game) GetAwayScore() ScoreInterface {
-	return g.AwayScore
+	if len(g.Scores) < 1 {
+		g.Scores = append(g.Scores, &Score{}, &Score{})
+	} else if len(g.Scores) < 2 {
+		g.Scores = append(g.Scores, &Score{})
+	}
+	return g.Scores[1]
 }
 
 func (g *Game) GetTeams() []TeamInterface {

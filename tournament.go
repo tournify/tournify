@@ -102,7 +102,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 				// Now we have home teams of 0,1 and away teams of 2,3
 				// This means 0 will meet 2 and 1 will meet 3
 				for hi, hteam := range homeTeams {
-					game := Game{HomeTeam: hteam, AwayTeam: awayTeams[hi]}
+					game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
 					groups[gi].AppendGame(&game)
 					hteam.AppendGame(&game)
 					games = append(games, &game)
