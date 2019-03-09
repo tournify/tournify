@@ -6,10 +6,10 @@ import (
 
 func TestSortTournamentStats(t *testing.T) {
 	var stats []TeamStatsInterface
-	stats = append(stats, &TeamStats{Points: 10, Diff: 10, PointsFor: 10})
-	stats = append(stats, &TeamStats{Points: 11, Diff: 9, PointsFor: 9})
-	stats = append(stats, &TeamStats{Points: 10, Diff: 10, PointsFor: 8})
-	stats = append(stats, &TeamStats{Points: 10, Diff: 11, PointsFor: 9})
+	stats = append(stats, &TeamStats{Points: 10, PointsAgainst: 0, PointsFor: 10})
+	stats = append(stats, &TeamStats{Points: 11, PointsAgainst: 0, PointsFor: 9})
+	stats = append(stats, &TeamStats{Points: 10, PointsAgainst: 0, PointsFor: 8})
+	stats = append(stats, &TeamStats{Points: 10, PointsAgainst: -2, PointsFor: 9})
 
 	stats = sortTournamentStats(stats)
 
@@ -40,7 +40,7 @@ func TestGroupTournamentStats(t *testing.T) {
 		}
 	}
 
-	err, stats := GetGroupTournamentStats(tournament, 3, 0, 1)
+	stats, err := GetGroupTournamentStats(tournament, 3, 0, 1)
 
 	if err != nil {
 		t.Error(err)
