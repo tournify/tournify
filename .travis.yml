@@ -14,6 +14,7 @@ before_install:
 script:
   - test -z "`gofmt -l .`"
   - test -z "`golint ./...`"
+  - chmod +x ./go.test.sh
   - ./go.test.sh
 
 after_success:
