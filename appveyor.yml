@@ -16,6 +16,5 @@ before_test:
   - go get -u golang.org/x/lint/golint
 
 test_script:
-  - test -z "`gofmt -l .`"
-  - test -z "`golint ./...`"
+  - golint ./...
   - go test ./...
