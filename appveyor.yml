@@ -1,0 +1,17 @@
+build: off
+
+clone_folder: /usr/go/src/github.com/$username/$project
+
+environment:
+  GOPATH: /usr/go/
+
+stack: go 1.11
+
+before_test:
+  - go get -t -v ./...
+  - go get -u golang.org/x/lint/golint=
+
+test_script:
+  - test -z "`gofmt -l .`"
+  - test -z "`golint ./...`"
+  - go test ./...
