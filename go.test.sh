@@ -9,4 +9,4 @@ for d in $(go list ./... | grep -v vendor); do
         cat profile.out >> coverage.txt
         rm profile.out
     fi
-done
+done 
