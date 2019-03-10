@@ -1,9 +1,9 @@
 build: off
 
-clone_folder: $HOME/go/src/github.com/$username/$project
+clone_folder: /usr/go/src/github.com/tournify/gotournament
 
 environment:
-  GOPATH: $HOME/go/
+  GOPATH: /usr/go/
 
 stack: go 1.11
 
