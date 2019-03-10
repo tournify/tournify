@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.11
+    working_directory: /go/src/github.com/tournify/gotournament
+
+    steps:
+      - checkout
+      - run: go get -t -v ./...
+      - run: go get -u golang.org/x/lint/golint
+      - run:
+          name: run tests
+          command: |
+            go fmt ./...
+            go test -v ./...
+            golint ./...
