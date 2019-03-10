@@ -1,15 +1,18 @@
-build: off
+version: "{build}"
+platform: x64
 
-clone_folder: /usr/go/src/github.com/tournify/gotournament
+matrix:
+  allow_failures:
+    - platform: x64
+
+clone_folder: c:\gopath\src\github.com\tournify\gotournament
 
 environment:
-  GOPATH: /usr/go/
-
-stack: go 1.11
+  GOPATH: c:\gopath
 
 before_test:
   - go get -t -v ./...
-  - go get -u golang.org/x/lint/golint=
+  - go get -u golang.org/x/lint/golint
 
 test_script:
   - test -z "`gofmt -l .`"
