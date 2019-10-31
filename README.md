@@ -87,3 +87,8 @@ Game ID: 0, HomeTeam: 5, AwayTeam: 3, HomeScore: &{0 0}, AwayScore: &{0 0}
 Game ID: 0, HomeTeam: 1, AwayTeam: 3, HomeScore: &{0 0}, AwayScore: &{0 0}
 Game ID: 0, HomeTeam: 7, AwayTeam: 5, HomeScore: &{0 0}, AwayScore: &{0 0}
 ```
+
+Contributing
+=
+
+Please see [contributing](CONTRIBUTING.md).
