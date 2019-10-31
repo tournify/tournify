@@ -1,5 +1,7 @@
 package gotournament
 
+import "fmt"
+
 // TeamInterface defines the methods for teams. Teams are used to create tournaments and generate games.
 // Teams can have games and can contain a slice of players
 type TeamInterface interface {
@@ -7,6 +9,7 @@ type TeamInterface interface {
 	GetPlayers() []PlayerInterface
 	GetGames() []GameInterface
 	AppendGame(game GameInterface)
+	Print()
 }
 
 // Team is a default struct used as an example of how structs can be implemented for gotournament
@@ -34,4 +37,9 @@ func (t *Team) GetGames() []GameInterface {
 // AppendGame takes a game as an argument and appends it to the Games slice
 func (t *Team) AppendGame(game GameInterface) {
 	t.Games = append(t.Games, game)
+}
+
+// Print writes team details to stdout
+func (t *Team) Print() {
+	fmt.Printf("Team ID: %d\n", t.GetID())
 }

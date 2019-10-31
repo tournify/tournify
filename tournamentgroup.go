@@ -1,5 +1,7 @@
 package gotournament
 
+import "fmt"
+
 // TournamentGroupInterface defines the interface of tournament groups used for group tournaments
 type TournamentGroupInterface interface {
 	GetID() int
@@ -9,6 +11,7 @@ type TournamentGroupInterface interface {
 	AppendGame(game GameInterface)
 	AppendTeams(teams []TeamInterface)
 	AppendTeam(team TeamInterface)
+	Print()
 }
 
 // TournamentGroup is for group tournaments only
@@ -51,4 +54,9 @@ func (t *TournamentGroup) AppendTeams(teams []TeamInterface) {
 // AppendTeam takes a single team and appends it to the Teams slice
 func (t *TournamentGroup) AppendTeam(team TeamInterface) {
 	t.Teams = append(t.Teams, team)
+}
+
+// Print writes group details to stdout
+func (t *TournamentGroup) Print() {
+	fmt.Printf("Group ID: %d\n", t.GetID())
 }

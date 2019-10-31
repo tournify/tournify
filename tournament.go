@@ -1,11 +1,14 @@
 package gotournament
 
+import "fmt"
+
 // TournamentInterface defines the methods needed to handle tournaments.
 type TournamentInterface interface {
 	GetType() int
 	GetTeams() []TeamInterface
 	GetGroups() []TournamentGroupInterface
 	GetGames() []GameInterface
+	Print()
 }
 
 // Tournament is a default struct used as an example of how structs can be implemented for gotournament
@@ -36,6 +39,23 @@ func (t Tournament) GetGames() []GameInterface {
 	return t.Games
 }
 
+// Print writes the full tournament details to stdout
+func (t Tournament) Print() {
+	fmt.Printf("TournamentType %d\n", t.Type)
+	fmt.Printf("\nTeams\n")
+	for _, team := range t.GetTeams() {
+		team.Print()
+	}
+	fmt.Printf("\nGroups\n")
+	for _, group := range t.GetGroups() {
+		group.Print()
+	}
+	fmt.Printf("\nGames\n")
+	for _, games := range t.GetGames() {
+		games.Print()
+	}
+}
+
 // CreateTournament creates a tournament with the simplest input. It is recommended to create a slice with
 // specific use via CreateTournamentFromTeams as this method will generate it's own Teams as a sort of placeholder.
 func CreateTournament(teamCount int, meetCount int, tournamentType int) TournamentInterface {
@@ -57,8 +77,23 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentT
 			groupCount = 1
 		}
 		return CreateGroupTournamentFromTeams(teams, groupCount, meetCount)
+	} else if TournamentType(tournamentType) == TournamentTypeSeries {
+		return CreateGroupTournamentFromTeams(teams, 1, meetCount)
+	} else if TournamentType(tournamentType) == TournamentTypeElimination {
+		return CreateEliminationTournamentFromTeams(teams)
 	}
 	return nil
+}
+
+// CreateGroupTournamentFromTeams takes a slice of teams and generates a elimination tournament
+func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInterface {
+	// Create the initial games of the elimination tournament
+	var games []GameInterface
+	// We need to keep of eliminated teams, maybe make a function for that
+	// also a function for teams still in the tournament
+	// A function to calculate which team proceeds as well and generate the next game
+	// Return a tournament
+	return Tournament{Games: games, Teams: teams, Type: TournamentTypeElimination}
 }
 
 // CreateGroupTournamentFromTeams takes a slice of teams and generates a group tournament
@@ -78,6 +113,7 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 }
 
 // CreateGroupTournamentFromGroups takes a slice of groups that contain teams and returns a group tournament
+// TODO simplify and break down this function in to smaller chunks?
 func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCount int) TournamentInterface {
 	// Works best for an even amount of teams in every group
 	var games []GameInterface

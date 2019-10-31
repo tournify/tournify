@@ -1,18 +1,21 @@
 package gotournament
 
+import "fmt"
+
 // GameInterface defines the needed methods for games used in the library.
 // A Game is a flexible entity and conforms to what you might typically find in Soccer where
 // you have a home and away team and a score for each team but the interface also tries to
 // allow for other types of games where the number of teams and scores is not limited to 2
 type GameInterface interface {
 	GetID() int
-	GetHomeTeam() TeamInterface // TODO home and away team could just be first or last team in team slice?
+	GetHomeTeam() TeamInterface // TODO home and away team could just be first or last team in team slice? a game could have more than 2 teams?
 	GetAwayTeam() TeamInterface
 	GetHomeScore() ScoreInterface
 	GetAwayScore() ScoreInterface
 	GetTeams() []TeamInterface   // For games that can have any number of teams
 	GetScores() []ScoreInterface // For games that can have any number of scores
 	SetScore(homeScore float64, awayScore float64)
+	Print()
 }
 
 // Game is a default struct used as an example of how structs can be implemented for gotournament
@@ -83,4 +86,14 @@ func (g *Game) GetTeams() []TeamInterface {
 // GetScores returns a slice of Score
 func (g *Game) GetScores() []ScoreInterface {
 	return g.Scores
+}
+
+// Print writes game details to stdout
+func (g *Game) Print() {
+	fmt.Printf("Game ID: %d, HomeTeam: %d, AwayTeam: %d, HomeScore: %v, AwayScore: %v\n",
+		g.GetID(),
+		g.GetHomeTeam().GetID(),
+		g.GetAwayTeam().GetID(),
+		g.GetHomeScore(),
+		g.GetAwayScore())
 }
