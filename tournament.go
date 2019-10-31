@@ -85,7 +85,7 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentT
 	return nil
 }
 
-// CreateGroupTournamentFromTeams takes a slice of teams and generates a elimination tournament
+// CreateEliminationTournamentFromTeams takes a slice of teams and generates a elimination tournament
 func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInterface {
 	// Create the initial games of the elimination tournament
 	var games []GameInterface
