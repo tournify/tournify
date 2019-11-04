@@ -20,12 +20,12 @@ type Tournament struct {
 	Games  []GameInterface
 }
 
-// GetType returns the type of tournament
+// GetType returns the type of tournament as an int
 func (t Tournament) GetType() int {
 	return int(t.Type)
 }
 
-// GetType returns the type of tournament
+// GetTypeString returns the type of tournament as a string
 func (t Tournament) GetTypeString() string {
 	return t.Type.String()
 }
