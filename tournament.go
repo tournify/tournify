@@ -68,21 +68,19 @@ func (t Tournament) Print() string {
 
 // CreateTournament creates a tournament with the simplest input. It is recommended to create a slice with
 // specific use via CreateTournamentFromTeams as this method will generate it's own Teams as a sort of placeholder.
-func CreateTournament(teamCount int, meetCount int, tournamentType int) TournamentInterface {
+func CreateTournament(teamCount int, meetCount int, groupCount int, tournamentType int) TournamentInterface {
 	var teams []TeamInterface
 
 	for i := 0; i < teamCount; i++ {
 		teams = append(teams, &Team{ID: i})
 	}
 
-	return CreateTournamentFromTeams(teams, meetCount, tournamentType)
+	return CreateTournamentFromTeams(teams, meetCount, groupCount, tournamentType)
 }
 
 // CreateTournamentFromTeams takes a slice of teams and generates a tournament of the specified type
-func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, tournamentType int) TournamentInterface {
+func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, groupCount int, tournamentType int) TournamentInterface {
 	if TournamentType(tournamentType) == TournamentTypeGroup {
-		// It is recommended to call CreateGroupTournamentFromTeams directly as we try to automatically determine a group size and count here
-		groupCount := len(teams) / 4 // We assume 4 teams per group by default
 		if groupCount < 1 {
 			groupCount = 1
 		}
@@ -178,7 +176,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 						homeTeams = []TeamInterface{x}
 					}
 				}
-				for i := 1; i < len(gTeams); i++ {
+				for i := 0; i < len(gTeams)-1; i++ {
 					// Now we have home teams of 0,1 and away teams of 2,3
 					// This means 0 will meet 2 and 1 will meet 3
 					for hi, hteam := range homeTeams {
@@ -190,7 +188,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 						gameIndex++
 					}
 					if len(gTeams) >= 4 {
-						homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams, gTeams)
+						homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
 					} else {
 						// We are dealing with less than 4 teams so we just switch sides
 						tempTeams := homeTeams
@@ -204,7 +202,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
 }
 
-func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface, gTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
+func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
 	var x, y, z TeamInterface
 	// We keep the first home team in the same position and rotate all others
 	// HT = Home Teams, AT = Away Teams
@@ -230,5 +228,7 @@ func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInte
 
 // NumberOfGamesForGroupTournament Calculates the number of games in a group tournament based on number of teams, groups and unique encounters.
 func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount int) int {
-	return ((((teamCount / groupCount) - 1) * ((teamCount / groupCount) / 2)) * groupCount) * meetCount
+	tpg := teamCount / groupCount
+	games := tpg * (tpg - 1) / 2
+	return games * meetCount * groupCount
 }

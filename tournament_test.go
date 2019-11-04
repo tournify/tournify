@@ -9,10 +9,7 @@ func TestCreateGroupTournament(t *testing.T) {
 	teamCount := 8
 	meetCount := 2
 	groupCount := 2
-	tournament := CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
-	if len(tournament.GetTeams()) < 1 {
-		t.Errorf("No games were created for the tournament")
-	}
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
@@ -28,14 +25,11 @@ func TestCreateGroupTournament(t *testing.T) {
 	teamCount = 2
 	meetCount = 1
 	groupCount = 1
-	tournament = CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
-	if len(tournament.GetTeams()) < 1 {
-		t.Errorf("No games were created for the tournament")
-	}
+	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
-	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, 1, meetCount) {
+	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount) {
 		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount))
 	}
 	for _, game := range tournament.GetGames() {
@@ -47,14 +41,11 @@ func TestCreateGroupTournament(t *testing.T) {
 	teamCount = 16
 	meetCount = 4
 	groupCount = 2
-	tournament = CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
-	if len(tournament.GetTeams()) < 1 {
-		t.Errorf("No games were created for the tournament")
-	}
+	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
-	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, 2, meetCount) {
+	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount) {
 		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount))
 	}
 	for _, game := range tournament.GetGames() {
@@ -63,24 +54,21 @@ func TestCreateGroupTournament(t *testing.T) {
 		}
 	}
 	// Test a group tournament with 320 teams in 16 groups that meet each other 40 times
-	//teamCount = 320
-	//meetCount = 40
-	//groupCount = 16
-	//tournament = CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
-	//if len(tournament.GetTeams()) < 1 {
-	//	t.Errorf("No games were created for the tournament")
-	//}
-	//if len(tournament.GetTeams()) != teamCount {
-	//	t.Errorf("Team count does not match input")
-	//}
-	//if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, 2, meetCount) {
-	//	t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount))
-	//}
-	//for _, game := range tournament.GetGames() {
-	//	if game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
-	//		t.Errorf("Two teams with the same ID are facing each other %d vs %d", game.GetHomeTeam().GetID(), game.GetAwayTeam().GetID())
-	//	}
-	//}
+	teamCount = 320
+	meetCount = 40
+	groupCount = 16
+	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	if len(tournament.GetTeams()) != teamCount {
+		t.Errorf("Team count does not match input")
+	}
+	if len(tournament.GetGames()) != NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount) {
+		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForGroupTournament(teamCount, groupCount, meetCount))
+	}
+	for _, game := range tournament.GetGames() {
+		if game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
+			t.Errorf("Two teams with the same ID are facing each other %d vs %d", game.GetHomeTeam().GetID(), game.GetAwayTeam().GetID())
+		}
+	}
 }
 
 func TestNumberOfGamesForGroupTournament(t *testing.T) {
@@ -111,5 +99,9 @@ func TestNumberOfGamesForGroupTournament(t *testing.T) {
 	// Assert that a tournament with 8 teams split into 2 groups where every team meets 4 times should result in 24 games
 	if NumberOfGamesForGroupTournament(8, 2, 4) != 48 {
 		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(8, 2, 4), "!= 48")
+	}
+	// Assert that a tournament with 8 teams split into 2 groups where every team meets 4 times should result in 24 games
+	if NumberOfGamesForGroupTournament(16, 2, 4) != 224 {
+		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(16, 2, 4), "!= 224")
 	}
 }
