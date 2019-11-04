@@ -145,36 +145,36 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 		gTeams := *group.GetTeams()
 		// Loop through meet count
 		for mi := 0; mi < meetCount; mi++ {
-			// TODO a bug here causes team IDs to disappear with a meetcount of 4 or higher
-			// TODO a bug here causes the same team to face itself with a meetcount of 4 or higher
 			if len(gTeams) > 1 {
-				var homeTeams []TeamInterface
-				var awayTeams []TeamInterface
+				homeTeams := make([]TeamInterface, len(gTeams)/2)
+				awayTeams := make([]TeamInterface, len(gTeams)/2)
 				// Everyone meets everyone once
 				// We begin by taking our slice of teams like 0,1,2,3, and splitting it into home and away teams
 				if len(gTeams) >= 4 {
 					// if meet index is even
 					if mi%2 == 0 {
 						// The first half of the team slice become the home teams
-						homeTeams = gTeams[0:(len(gTeams) / 2)]
+						copy(homeTeams, gTeams[0:(len(gTeams)/2)])
 						// The second half of the team slice become the away teams
-						awayTeams = gTeams[(len(gTeams) / 2):]
+						copy(awayTeams, gTeams[(len(gTeams)/2):])
 						// if meet index is odd
 					} else {
-						awayTeams = gTeams[0:(len(gTeams) / 2)]
-						homeTeams = gTeams[(len(gTeams) / 2):]
+						copy(awayTeams, gTeams[0:(len(gTeams)/2)])
+						copy(homeTeams, gTeams[(len(gTeams)/2):])
 					}
 				} else {
 					var x TeamInterface
 					// if meet index is even
 					if mi%2 == 0 {
 						// we take the team at index 0 and put the rest of the teams in the home team  slice
-						x, homeTeams = gTeams[0], gTeams[1:]
+						x = gTeams[0]
+						copy(homeTeams, gTeams[1:])
 						// The team that was first in the slice becomes the away team
 						awayTeams = []TeamInterface{x}
 						// if meet index is odd
 					} else {
-						x, awayTeams = gTeams[0], gTeams[1:]
+						x = gTeams[0]
+						copy(awayTeams, gTeams[1:])
 						homeTeams = []TeamInterface{x}
 					}
 				}
@@ -190,7 +190,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 						gameIndex++
 					}
 					if len(gTeams) >= 4 {
-						homeTeams, awayTeams = RotateTeamsForCrossMatching(homeTeams, awayTeams, gTeams)
+						homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams, gTeams)
 					} else {
 						// We are dealing with less than 4 teams so we just switch sides
 						tempTeams := homeTeams
@@ -204,87 +204,31 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
 }
 
-func RotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface, gTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
+func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface, gTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
 	var x, y, z TeamInterface
-	checkForDupe("g1", gTeams)
 	// We keep the first home team in the same position and rotate all others
 	// HT = Home Teams, AT = Away Teams
 	// for HT 0,1 and AT 2,3. 0 is kept in place while 1 remains in the home team array
 	x, homeTeams = homeTeams[0], homeTeams[1:]
-	checkForDupe("g3", gTeams)
 	// Take the first away team
 	// 2 is taken out of AT, 3 remains in AT
 	z, awayTeams = awayTeams[0], awayTeams[1:]
-	checkForDupe("g3", gTeams)
 	// and append to end of home teams
 	// HT is now 1,2
 	homeTeams = append(homeTeams, z)
-	checkForDupe("g4", gTeams)
 	// Take the first home team
 	// 1 is taken out of HT, HT is now 2
 	y, homeTeams = homeTeams[0], homeTeams[1:]
-	checkForDupe("g5", gTeams)
 	// and append it to the end of away teams
 	// 1 is added to end of AT, AT is now 3,1
-	fmt.Printf("g1 ")
-	for _, t := range gTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	fmt.Printf("away: ")
-	for _, t := range awayTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	fmt.Printf("home: ")
-	for _, t := range homeTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	fmt.Println("y", y.GetID())
-	fmt.Println("x", x.GetID())
 	awayTeams = append(awayTeams, y)
-	fmt.Printf("g2 ")
-	for _, t := range gTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	fmt.Printf("away: ")
-	for _, t := range awayTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	fmt.Printf("home: ")
-	for _, t := range homeTeams {
-		fmt.Printf("%d ", t.GetID())
-	}
-	fmt.Println()
-	checkForDupe("g6", gTeams)
 	// Put the first home team back in first position of home array
 	// HT is now 0,2
 	homeTeams = append([]TeamInterface{x}, homeTeams...)
-	checkForDupe("g7", gTeams)
 	return homeTeams, awayTeams
 }
 
 // NumberOfGamesForGroupTournament Calculates the number of games in a group tournament based on number of teams, groups and unique encounters.
 func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount int) int {
 	return ((((teamCount / groupCount) - 1) * ((teamCount / groupCount) / 2)) * groupCount) * meetCount
-}
-
-func checkForDupe(key string, gTeams []TeamInterface) {
-	var enc []int
-	for _, t := range gTeams {
-		for _, en := range enc {
-			if en == t.GetID() {
-				fmt.Printf("%s:  ", key)
-				for _, t := range gTeams {
-					fmt.Printf("%d ", t.GetID())
-				}
-				fmt.Println()
-				panic("dupe")
-			}
-		}
-		enc = append(enc, t.GetID())
-	}
 }
