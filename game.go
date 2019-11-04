@@ -15,7 +15,7 @@ type GameInterface interface {
 	GetTeams() []TeamInterface   // For games that can have any number of teams
 	GetScores() []ScoreInterface // For games that can have any number of scores
 	SetScore(homeScore float64, awayScore float64)
-	Print()
+	Print() string
 }
 
 // Game is a default struct used as an example of how structs can be implemented for gotournament
@@ -89,11 +89,11 @@ func (g *Game) GetScores() []ScoreInterface {
 }
 
 // Print writes game details to stdout
-func (g *Game) Print() {
-	fmt.Printf("Game ID: %d, HomeTeam: %d, AwayTeam: %d, HomeScore: %v, AwayScore: %v\n",
+func (g *Game) Print() string {
+	return fmt.Sprintf("Game ID: %d, HomeTeam: %d, AwayTeam: %d, HomeScore: %.2f, AwayScore: %.2f\n",
 		g.GetID(),
 		g.GetHomeTeam().GetID(),
 		g.GetAwayTeam().GetID(),
-		g.GetHomeScore(),
-		g.GetAwayScore())
+		g.GetHomeScore().GetPoints(),
+		g.GetAwayScore().GetPoints())
 }

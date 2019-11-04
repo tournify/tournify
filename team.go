@@ -9,7 +9,7 @@ type TeamInterface interface {
 	GetPlayers() []PlayerInterface
 	GetGames() []GameInterface
 	AppendGame(game GameInterface)
-	Print()
+	Print() string
 }
 
 // Team is a default struct used as an example of how structs can be implemented for gotournament
@@ -40,6 +40,6 @@ func (t *Team) AppendGame(game GameInterface) {
 }
 
 // Print writes team details to stdout
-func (t *Team) Print() {
-	fmt.Printf("Team ID: %d\n", t.GetID())
+func (t *Team) Print() string {
+	return fmt.Sprintf("Team ID: %d\n", t.GetID())
 }

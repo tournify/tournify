@@ -102,7 +102,7 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 	for _, group := range t.GetGroups() {
 		var groupStats []TeamStatsInterface
 
-		for _, team := range group.GetTeams() {
+		for _, team := range *group.GetTeams() {
 			stat := TeamStats{
 				Group:         group,
 				Team:          team,
