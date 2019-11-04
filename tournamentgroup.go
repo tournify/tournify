@@ -5,13 +5,13 @@ import "fmt"
 // TournamentGroupInterface defines the interface of tournament groups used for group tournaments
 type TournamentGroupInterface interface {
 	GetID() int
-	GetTeams() []TeamInterface
-	GetGames() []GameInterface
+	GetTeams() *[]TeamInterface
+	GetGames() *[]GameInterface
 	AppendGames(games []GameInterface)
 	AppendGame(game GameInterface)
 	AppendTeams(teams []TeamInterface)
 	AppendTeam(team TeamInterface)
-	Print()
+	Print() string
 }
 
 // TournamentGroup is for group tournaments only
@@ -27,13 +27,13 @@ func (t *TournamentGroup) GetID() int {
 }
 
 // GetTeams returns a slice of teams belonging to the group
-func (t *TournamentGroup) GetTeams() []TeamInterface {
-	return t.Teams
+func (t *TournamentGroup) GetTeams() *[]TeamInterface {
+	return &t.Teams
 }
 
 // GetGames returns the slice of games belonging to the group
-func (t *TournamentGroup) GetGames() []GameInterface {
-	return t.Games
+func (t *TournamentGroup) GetGames() *[]GameInterface {
+	return &t.Games
 }
 
 // AppendGames adds a slice of games to the Games slice
@@ -57,6 +57,11 @@ func (t *TournamentGroup) AppendTeam(team TeamInterface) {
 }
 
 // Print writes group details to stdout
-func (t *TournamentGroup) Print() {
-	fmt.Printf("Group ID: %d\n", t.GetID())
+func (t *TournamentGroup) Print() string {
+	p := fmt.Sprintf("Group ID: %d\n", t.GetID())
+	for _, team := range *t.GetTeams() {
+		p += team.Print()
+	}
+	p += fmt.Sprintf("\n")
+	return p
 }

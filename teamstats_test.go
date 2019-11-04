@@ -28,13 +28,15 @@ func TestSortTournamentStats(t *testing.T) {
 func TestGroupTournamentStats(t *testing.T) {
 	teamCount := 8
 	meetCount := 2
-	tournament := CreateTournament(teamCount, meetCount, int(TournamentTypeGroup))
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 
 	for _, group := range tournament.GetGroups() {
+		gGames := *group.GetGames()
 		homeScore := 0
-		awayScore := len(group.GetGames())
-		for i := range group.GetGames() {
-			group.GetGames()[i].SetScore(float64(homeScore), float64(awayScore))
+		awayScore := len(gGames)
+		for i := range gGames {
+			gGames[i].SetScore(float64(homeScore), float64(awayScore))
 			homeScore++
 			awayScore--
 		}
@@ -48,19 +50,19 @@ func TestGroupTournamentStats(t *testing.T) {
 
 	for i, s := range stats {
 		if i == 0 {
-			verifyStats(s, 9, 10, 11, t)
+			verifyStats(s, 13, 8, 10, t)
 		} else if i == 1 {
-			verifyStats(s, 9, -8, 2, t)
+			verifyStats(s, 9, 10, 11, t)
 		} else if i == 2 {
-			verifyStats(s, 4, -10, 1, t)
+			verifyStats(s, 9, -8, 2, t)
 		} else if i == 3 {
 			verifyStats(s, 4, -10, 1, t)
 		} else if i == 4 {
-			verifyStats(s, 9, 10, 11, t)
+			verifyStats(s, 13, 8, 10, t)
 		} else if i == 5 {
-			verifyStats(s, 9, -8, 2, t)
+			verifyStats(s, 9, 10, 11, t)
 		} else if i == 6 {
-			verifyStats(s, 4, -10, 1, t)
+			verifyStats(s, 9, -8, 2, t)
 		} else if i == 7 {
 			verifyStats(s, 4, -10, 1, t)
 		}
