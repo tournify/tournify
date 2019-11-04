@@ -41,7 +41,6 @@ func main()  {
 		{ID:5},
 		{ID:6},
 		{ID:7},
-		{ID:8},
 	}
 
 	teamInterfaces := make([]gotournament.TeamInterface, len(teams))
@@ -75,7 +74,6 @@ Team ID: 4
 Team ID: 5
 Team ID: 6
 Team ID: 7
-Team ID: 8
 
 
 Games
@@ -91,8 +89,6 @@ Game ID: 0, HomeTeam: 4, AwayTeam: 7, HomeScore: 0.00, AwayScore: 0.00
 Game ID: 0, HomeTeam: 6, AwayTeam: 5, HomeScore: 0.00, AwayScore: 0.00
 Game ID: 0, HomeTeam: 4, AwayTeam: 5, HomeScore: 0.00, AwayScore: 0.00
 Game ID: 0, HomeTeam: 7, AwayTeam: 6, HomeScore: 0.00, AwayScore: 0.00
-Game ID: 0, HomeTeam: 4, AwayTeam: 6, HomeScore: 0.00, AwayScore: 0.00
-Game ID: 0, HomeTeam: 5, AwayTeam: 7, HomeScore: 0.00, AwayScore: 0.00
 ```
 
 Contributing
