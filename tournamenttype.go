@@ -18,7 +18,7 @@ const (
 )
 
 func (tournamentType TournamentType) String() string {
-	names := [...]string{"Group", "Elimination", "DoubleElimination"}
+	names := [...]string{"Group", "Series", "Elimination", "Double Elimination"}
 
 	if tournamentType < TournamentTypeGroup || tournamentType > TournamentTypeDoubleElimination {
 		return "Unknown"
