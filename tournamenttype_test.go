@@ -20,3 +20,10 @@ func TestTournamentTypeString(t *testing.T) {
 		t.Errorf("Tournament Type does not match %s != %s", ttg3.String(), "Double Elimination")
 	}
 }
+
+func TestTournamentTypeInvalidString(t *testing.T) {
+	ttg := TournamentType(-1)
+	if ttg.String() != "Unknown" {
+		t.Errorf("Tournament Type does not match %s != %s", ttg.String(), "Unknown")
+	}
+}
