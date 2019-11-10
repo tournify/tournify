@@ -8,15 +8,17 @@ type TeamInterface interface {
 	GetID() int
 	GetPlayers() []PlayerInterface
 	GetGames() []GameInterface
+	GetEliminatedCount() int
 	AppendGame(game GameInterface)
 	Print() string
 }
 
 // Team is a default struct used as an example of how structs can be implemented for gotournament
 type Team struct {
-	ID      int
-	Players []PlayerInterface
-	Games   []GameInterface
+	ID         int
+	Players    []PlayerInterface
+	Games      []GameInterface
+	Eliminated int // Increment by 1 every time this team is elimnated
 }
 
 // GetID returns the id of the score
@@ -42,4 +44,8 @@ func (t *Team) AppendGame(game GameInterface) {
 // Print writes team details to stdout
 func (t *Team) Print() string {
 	return fmt.Sprintf("Team ID: %d\n", t.GetID())
+}
+
+func (t *Team) GetEliminatedCount() int {
+	return t.Eliminated
 }
