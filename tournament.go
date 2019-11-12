@@ -171,8 +171,20 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 	var teams []TeamInterface
 	gameIndex := 0
 	for gi, group := range groups {
+		var tempID int
+		uneven := false
+
 		teams = append(teams, *group.GetTeams()...)
 		gTeams := *group.GetTeams()
+
+		// If there is an uneven amount of teams we need to add a temporary team which is later removed
+		if len(gTeams)%2 != 0 {
+			tempID = generateTempID(gTeams, -1)
+			tempTeam := Team{ID: tempID}
+			gTeams = append(gTeams, &tempTeam)
+			uneven = true
+		}
+
 		// Loop through meet count
 		for mi := 0; mi < meetCount; mi++ {
 			// TODO game calculation is wrong when there is an uneven number of teams per group
@@ -211,11 +223,14 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 						homeTeams = []TeamInterface{x}
 					}
 				}
+
+				awayTeams = reverseSlice(awayTeams)
+
 				for i := 0; i < len(gTeams)-1; i++ {
 					// Now we have home teams of 0,1 and away teams of 2,3
 					// This means 0 will meet 2 and 1 will meet 3
 					for hi, hteam := range homeTeams {
-						if hi < len(awayTeams) {
+						if hteam.GetID() != tempID && awayTeams[hi].GetID() != tempID {
 							game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
 							groups[gi].AppendGame(&game)
 							hteam.AppendGame(&game)
@@ -235,8 +250,32 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 				}
 			}
 		}
+		if uneven {
+			for _, game := range games {
+				if game.GetHomeTeam().GetID() == tempID || game.GetHomeTeam().GetID() == tempID {
+
+				}
+			}
+		}
 	}
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
+}
+
+func generateTempID(teams []TeamInterface, tempID int) int {
+	for _, t := range teams {
+		if t.GetID() == tempID {
+			return generateTempID(teams, tempID-1)
+		}
+	}
+	return tempID
+}
+
+func reverseSlice(a []TeamInterface) []TeamInterface {
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
+	}
+	return a
 }
 
 func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
@@ -266,11 +305,8 @@ func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInte
 // NumberOfGamesForGroupTournament Calculates the number of games in a group tournament based on number of teams, groups and unique encounters.
 func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount int) int {
 	tpg := float64(teamCount) / float64(groupCount)
-	fmt.Printf("%f = %f / %f \n", tpg, float64(teamCount), float64(groupCount))
 	games := tpg * (tpg - 1) / 2
-	fmt.Printf("%f = %f * (%f-1) / 2 \n", games, tpg, tpg)
 	res := int(games * float64(meetCount*groupCount))
-	fmt.Printf("%d = int(%f * (%d * %d)) \n", res, games, meetCount, groupCount)
 	return res
 }
 
