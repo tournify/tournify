@@ -1,12 +1,17 @@
 package gotournament
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // TournamentInterface defines the methods needed to handle tournaments.
 type TournamentInterface interface {
 	GetType() int
 	GetTypeString() string
 	GetTeams() []TeamInterface
+	GetEliminatedTeams() []TeamInterface // For elimination style tournaments
+	GetRemainingTeams() []TeamInterface  // For elimination style tournaments
 	GetGroups() []TournamentGroupInterface
 	GetGames() []GameInterface
 	Print() string
@@ -43,6 +48,32 @@ func (t Tournament) GetGroups() []TournamentGroupInterface {
 // GetGames returns the game slice
 func (t Tournament) GetGames() []GameInterface {
 	return t.Games
+}
+
+func (t Tournament) GetEliminatedTeams() []TeamInterface {
+	var elimnatedTeams []TeamInterface
+	for _, team := range t.GetTeams() {
+		if team.GetEliminatedCount() > 0 && t.GetType() == int(TournamentTypeElimination) {
+			elimnatedTeams = append(elimnatedTeams, team)
+		}
+		if team.GetEliminatedCount() > 1 && t.GetType() == int(TournamentTypeDoubleElimination) {
+			elimnatedTeams = append(elimnatedTeams, team)
+		}
+	}
+	return elimnatedTeams
+}
+
+func (t Tournament) GetRemainingTeams() []TeamInterface {
+	var remainingTeams []TeamInterface
+	for _, team := range t.GetTeams() {
+		if team.GetEliminatedCount() < 1 && t.GetType() == int(TournamentTypeElimination) {
+			remainingTeams = append(remainingTeams, team)
+		}
+		if team.GetEliminatedCount() < 2 && t.GetType() == int(TournamentTypeDoubleElimination) {
+			remainingTeams = append(remainingTeams, team)
+		}
+	}
+	return remainingTeams
 }
 
 // Print writes the full tournament details to a string
@@ -86,6 +117,7 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, groupCount 
 		}
 		return CreateGroupTournamentFromTeams(teams, groupCount, meetCount)
 	} else if TournamentType(tournamentType) == TournamentTypeSeries {
+		// TODO this should return an tournament of type series
 		return CreateGroupTournamentFromTeams(teams, 1, meetCount)
 	} else if TournamentType(tournamentType) == TournamentTypeElimination {
 		return CreateEliminationTournamentFromTeams(teams)
@@ -97,7 +129,7 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, groupCount 
 func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInterface {
 	// Create the initial games of the elimination tournament
 	var games []GameInterface
-	// We need to keep of eliminated teams, maybe make a function for that
+	// We need to keep track of eliminated teams, maybe make a function for that
 	// also a function for teams still in the tournament
 	// A function to calculate which team proceeds as well and generate the next game
 	// Return a tournament
@@ -139,43 +171,44 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 	var teams []TeamInterface
 	gameIndex := 0
 	for gi, group := range groups {
+		var tempID int
+		uneven := false
+
 		teams = append(teams, *group.GetTeams()...)
 		gTeams := *group.GetTeams()
+
+		// If there is an uneven amount of teams we need to add a temporary team which is later removed
+		if len(gTeams)%2 != 0 {
+			tempID = generateTempID(gTeams, -1)
+			tempTeam := Team{ID: tempID}
+			gTeams = append(gTeams, &tempTeam)
+			uneven = true
+		}
+
 		// Loop through meet count
 		for mi := 0; mi < meetCount; mi++ {
+			// TODO game calculation is wrong when there is an uneven number of teams per group
 			if len(gTeams) > 1 {
-				homeTeams := make([]TeamInterface, len(gTeams)/2)
-				awayTeams := make([]TeamInterface, len(gTeams)/2)
+				halfCountHiger := DivideRoundUp(len(gTeams), 2)
+				halfCountLower := DivideRoundDown(len(gTeams), 2)
+				homeTeams := make([]TeamInterface, halfCountHiger)
+				awayTeams := make([]TeamInterface, halfCountLower)
 				// Everyone meets everyone once
 				// We begin by taking our slice of teams like 0,1,2,3, and splitting it into home and away teams
-				if len(gTeams) >= 4 {
-					// if meet index is even
-					if mi%2 == 0 {
-						// The first half of the team slice become the home teams
-						copy(homeTeams, gTeams[0:(len(gTeams)/2)])
-						// The second half of the team slice become the away teams
-						copy(awayTeams, gTeams[(len(gTeams)/2):])
-						// if meet index is odd
-					} else {
-						copy(awayTeams, gTeams[0:(len(gTeams)/2)])
-						copy(homeTeams, gTeams[(len(gTeams)/2):])
-					}
+				// if meet index is even
+				if mi%2 == 0 {
+					// The first half of the team slice become the home teams
+					copy(homeTeams, gTeams[0:halfCountHiger])
+					// The second half of the team slice become the away teams
+					copy(awayTeams, gTeams[halfCountHiger:])
+					// if meet index is odd
 				} else {
-					var x TeamInterface
-					// if meet index is even
-					if mi%2 == 0 {
-						// we take the team at index 0 and put the rest of the teams in the home team  slice
-						x = gTeams[0]
-						copy(homeTeams, gTeams[1:])
-						// The team that was first in the slice becomes the away team
-						awayTeams = []TeamInterface{x}
-						// if meet index is odd
-					} else {
-						x = gTeams[0]
-						copy(awayTeams, gTeams[1:])
-						homeTeams = []TeamInterface{x}
-					}
+					copy(awayTeams, gTeams[0:halfCountHiger])
+					copy(homeTeams, gTeams[halfCountLower:])
 				}
+
+				awayTeams = reverseSlice(awayTeams)
+
 				for i := 0; i < len(gTeams)-1; i++ {
 					// Now we have home teams of 0,1 and away teams of 2,3
 					// This means 0 will meet 2 and 1 will meet 3
@@ -187,19 +220,42 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 						awayTeams[hi].AppendGame(&game)
 						gameIndex++
 					}
-					if len(gTeams) >= 4 {
-						homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
-					} else {
-						// We are dealing with less than 4 teams so we just switch sides
-						tempTeams := homeTeams
-						homeTeams = awayTeams
-						awayTeams = tempTeams
-					}
+					homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
+
 				}
 			}
 		}
+		if uneven {
+			games = removeTempGames(games, tempID)
+		}
 	}
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
+}
+
+func removeTempGames(games []GameInterface, tempID int) []GameInterface {
+	for i := 0; i < len(games); i++ {
+		if games[i].GetHomeTeam().GetID() == tempID || games[i].GetAwayTeam().GetID() == tempID {
+			return removeTempGames(append(games[:i], games[i+1:]...), tempID)
+		}
+	}
+	return games
+}
+
+func generateTempID(teams []TeamInterface, tempID int) int {
+	for _, t := range teams {
+		if t.GetID() == tempID {
+			return generateTempID(teams, tempID-1)
+		}
+	}
+	return tempID
+}
+
+func reverseSlice(a []TeamInterface) []TeamInterface {
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
+	}
+	return a
 }
 
 func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInterface) ([]TeamInterface, []TeamInterface) {
@@ -228,7 +284,19 @@ func rotateTeamsForCrossMatching(homeTeams []TeamInterface, awayTeams []TeamInte
 
 // NumberOfGamesForGroupTournament Calculates the number of games in a group tournament based on number of teams, groups and unique encounters.
 func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount int) int {
-	tpg := teamCount / groupCount
+	tpg := float64(teamCount) / float64(groupCount)
 	games := tpg * (tpg - 1) / 2
-	return games * meetCount * groupCount
+	res := int(games * float64(meetCount*groupCount))
+	if math.Mod(float64(teamCount), float64(groupCount)) != 0 {
+		res += int(math.Mod(float64(teamCount), float64(groupCount))) * meetCount
+	}
+	return res
+}
+
+func DivideRoundUp(a int, b int) int {
+	return int(math.Ceil(float64(a) / float64(b)))
+}
+
+func DivideRoundDown(a int, b int) int {
+	return int(math.Floor(float64(a) / float64(b)))
 }

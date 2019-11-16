@@ -121,3 +121,13 @@ func TestTeamPrint(t *testing.T) {
 		t.Errorf("Team print does not match %s != %s", team.Print(), "Team ID: 0\n")
 	}
 }
+
+func TestTeamGetElimnatedCount(t *testing.T) {
+	team := Team{
+		ID:         0,
+		Eliminated: 1,
+	}
+	if team.GetEliminatedCount() != 1 {
+		t.Errorf("Team GetEliminatedCount does not match %d != %d", team.GetEliminatedCount(), 1)
+	}
+}

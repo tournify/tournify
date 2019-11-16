@@ -52,19 +52,19 @@ func TestGroupTournamentStats(t *testing.T) {
 		if i == 0 {
 			verifyStats(s, 13, 8, 10, t)
 		} else if i == 1 {
-			verifyStats(s, 9, 10, 11, t)
+			verifyStats(s, 10, -10, 1, t)
 		} else if i == 2 {
 			verifyStats(s, 9, -8, 2, t)
 		} else if i == 3 {
-			verifyStats(s, 4, -10, 1, t)
+			verifyStats(s, 3, 10, 11, t)
 		} else if i == 4 {
 			verifyStats(s, 13, 8, 10, t)
 		} else if i == 5 {
-			verifyStats(s, 9, 10, 11, t)
+			verifyStats(s, 10, -10, 1, t)
 		} else if i == 6 {
 			verifyStats(s, 9, -8, 2, t)
 		} else if i == 7 {
-			verifyStats(s, 4, -10, 1, t)
+			verifyStats(s, 3, 10, 11, t)
 		}
 	}
 
