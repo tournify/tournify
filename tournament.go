@@ -195,33 +195,16 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 				awayTeams := make([]TeamInterface, halfCountLower)
 				// Everyone meets everyone once
 				// We begin by taking our slice of teams like 0,1,2,3, and splitting it into home and away teams
-				if len(gTeams) >= 4 {
-					// if meet index is even
-					if mi%2 == 0 {
-						// The first half of the team slice become the home teams
-						copy(homeTeams, gTeams[0:halfCountHiger])
-						// The second half of the team slice become the away teams
-						copy(awayTeams, gTeams[halfCountHiger:])
-						// if meet index is odd
-					} else {
-						copy(awayTeams, gTeams[0:halfCountHiger])
-						copy(homeTeams, gTeams[halfCountLower:])
-					}
+				// if meet index is even
+				if mi%2 == 0 {
+					// The first half of the team slice become the home teams
+					copy(homeTeams, gTeams[0:halfCountHiger])
+					// The second half of the team slice become the away teams
+					copy(awayTeams, gTeams[halfCountHiger:])
+					// if meet index is odd
 				} else {
-					var x TeamInterface
-					// if meet index is even
-					if mi%2 == 0 {
-						// we take the team at index 0 and put the rest of the teams in the home team  slice
-						x = gTeams[0]
-						copy(homeTeams, gTeams[1:])
-						// The team that was first in the slice becomes the away team
-						awayTeams = []TeamInterface{x}
-						// if meet index is odd
-					} else {
-						x = gTeams[0]
-						copy(awayTeams, gTeams[1:])
-						homeTeams = []TeamInterface{x}
-					}
+					copy(awayTeams, gTeams[0:halfCountHiger])
+					copy(homeTeams, gTeams[halfCountLower:])
 				}
 
 				awayTeams = reverseSlice(awayTeams)
@@ -230,35 +213,32 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 					// Now we have home teams of 0,1 and away teams of 2,3
 					// This means 0 will meet 2 and 1 will meet 3
 					for hi, hteam := range homeTeams {
-						if hteam.GetID() != tempID && awayTeams[hi].GetID() != tempID {
-							game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
-							groups[gi].AppendGame(&game)
-							hteam.AppendGame(&game)
-							games = append(games, &game)
-							awayTeams[hi].AppendGame(&game)
-							gameIndex++
-						}
+						game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
+						groups[gi].AppendGame(&game)
+						hteam.AppendGame(&game)
+						games = append(games, &game)
+						awayTeams[hi].AppendGame(&game)
+						gameIndex++
 					}
-					if len(gTeams) >= 4 {
-						homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
-					} else {
-						// We are dealing with less than 4 teams so we just switch sides
-						tempTeams := homeTeams
-						homeTeams = awayTeams
-						awayTeams = tempTeams
-					}
-				}
-			}
-		}
-		if uneven {
-			for _, game := range games {
-				if game.GetHomeTeam().GetID() == tempID || game.GetHomeTeam().GetID() == tempID {
+					homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
 
 				}
 			}
 		}
+		if uneven {
+			games = removeTempGames(games, tempID)
+		}
 	}
 	return Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
+}
+
+func removeTempGames(games []GameInterface, tempID int) []GameInterface {
+	for i := 0; i < len(games); i++ {
+		if games[i].GetHomeTeam().GetID() == tempID || games[i].GetAwayTeam().GetID() == tempID {
+			return removeTempGames(append(games[:i], games[i+1:]...), tempID)
+		}
+	}
+	return games
 }
 
 func generateTempID(teams []TeamInterface, tempID int) int {
@@ -307,6 +287,9 @@ func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount in
 	tpg := float64(teamCount) / float64(groupCount)
 	games := tpg * (tpg - 1) / 2
 	res := int(games * float64(meetCount*groupCount))
+	if math.Mod(float64(teamCount), float64(groupCount)) != 0 {
+		res += int(math.Mod(float64(teamCount), float64(groupCount))) * meetCount
+	}
 	return res
 }
 
