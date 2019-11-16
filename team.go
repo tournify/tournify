@@ -46,6 +46,7 @@ func (t *Team) Print() string {
 	return fmt.Sprintf("Team ID: %d\n", t.GetID())
 }
 
+// GetEliminatedCount gets the number of times the team has been eliminated in a multiple elimination tournament
 func (t *Team) GetEliminatedCount() int {
 	return t.Eliminated
 }

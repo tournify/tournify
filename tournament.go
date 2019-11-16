@@ -50,6 +50,7 @@ func (t Tournament) GetGames() []GameInterface {
 	return t.Games
 }
 
+// GetEliminatedTeams gets all teams that have been eliminated at least one time in an elimination tournament
 func (t Tournament) GetEliminatedTeams() []TeamInterface {
 	var elimnatedTeams []TeamInterface
 	for _, team := range t.GetTeams() {
@@ -63,6 +64,7 @@ func (t Tournament) GetEliminatedTeams() []TeamInterface {
 	return elimnatedTeams
 }
 
+// GetRemainingTeams gets all teams that have not been eliminated in an elimination tournament
 func (t Tournament) GetRemainingTeams() []TeamInterface {
 	var remainingTeams []TeamInterface
 	for _, team := range t.GetTeams() {
@@ -293,10 +295,12 @@ func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount in
 	return res
 }
 
+// DivideRoundUp takes two ints, divides them and rounds the result up to the nearest int
 func DivideRoundUp(a int, b int) int {
 	return int(math.Ceil(float64(a) / float64(b)))
 }
 
+// DivideRoundDown takes two ints, divides them and rounds the result up to the nearest int
 func DivideRoundDown(a int, b int) int {
 	return int(math.Floor(float64(a) / float64(b)))
 }
