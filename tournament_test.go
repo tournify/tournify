@@ -4,6 +4,36 @@ import (
 	"testing"
 )
 
+func TestTournamentGetTypeString(t *testing.T) {
+	teamCount := 8
+	meetCount := 2
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	if tournament.GetTypeString() != "Group" {
+		t.Errorf("Tournament type is not of type Group")
+	}
+}
+
+func TestTournamentInvalidGroupCount(t *testing.T) {
+	teamCount := 8
+	meetCount := 2
+	groupCount := -1
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	if tournament != nil {
+		t.Errorf("Tournament should have failed to create and have a value of nil")
+	}
+}
+
+func TestTournamentInvalidMeetCount(t *testing.T) {
+	teamCount := 8
+	meetCount := -1
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	if tournament != nil {
+		t.Errorf("Tournament should have failed to create and have a value of nil")
+	}
+}
+
 func TestCreateGroupTournament(t *testing.T) {
 	// Test a group tournament with 8 teams in twp groups that meet each other twice
 	teamCount := 8

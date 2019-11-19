@@ -115,7 +115,10 @@ func CreateTournament(teamCount int, meetCount int, groupCount int, tournamentTy
 func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, groupCount int, tournamentType int) TournamentInterface {
 	if TournamentType(tournamentType) == TournamentTypeGroup {
 		if groupCount < 1 {
-			groupCount = 1
+			return nil
+		}
+		if meetCount < 1 {
+			return nil
 		}
 		return CreateGroupTournamentFromTeams(teams, groupCount, meetCount)
 	} else if TournamentType(tournamentType) == TournamentTypeSeries {
