@@ -148,10 +148,10 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 		return nil
 	}
 
-	var groups []TournamentGroupInterface
+	groups := []TournamentGroupInterface{&TournamentGroup{ID: 0}}
 	teamsPerGroup := len(teams) / groupCount
 
-	for i := 0; i < groupCount; i++ {
+	for i := 1; i < groupCount; i++ {
 		groups = append(groups, &TournamentGroup{ID: i})
 	}
 

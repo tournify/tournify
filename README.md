@@ -1,4 +1,4 @@
-# tournify
+# Tournify
 
 [![GoDoc](https://godoc.org/github.com/tournify/tournify?status.svg)](https://godoc.org/github.com/tournify/tournify)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tournify/tournify)](https://goreportcard.com/report/github.com/tournify/tournify)
