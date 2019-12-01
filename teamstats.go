@@ -149,6 +149,7 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 	return stats, nil
 }
 
+// SortTournamentStats sorts the statistics by points, diff and finally scored goals against other teams
 func SortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {
 	sort.Slice(stats, func(i, j int) bool {
 		if stats[i].GetPoints() > stats[j].GetPoints() {
