@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type TournamentInterface interface {
 	Print() string
 }
 
-// Tournament is a default struct used as an example of how structs can be implemented for gotournament
+// Tournament is a default struct used as an example of how structs can be implemented for tournify
 type Tournament struct {
 	Type   TournamentType // Is it elimination or group or ladder or poker? What is a type?
 	Teams  []TeamInterface

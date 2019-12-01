@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ func TestSortTournamentStats(t *testing.T) {
 	stats = append(stats, &TeamStats{Points: 10, PointsAgainst: 0, PointsFor: 8})
 	stats = append(stats, &TeamStats{Points: 10, PointsAgainst: -2, PointsFor: 9})
 
-	stats = sortTournamentStats(stats)
+	stats = SortTournamentStats(stats)
 
 	for i, s := range stats {
 		if i == 0 {

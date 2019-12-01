@@ -6,7 +6,7 @@ build: off
 
 stack: go 1.13
 
-clone_folder: c:\gopath\src\github.com\tournify\gotournament
+clone_folder: c:\gopath\src\github.com\tournify\tournify
 
 environment:
   GOPATH: c:\gopath

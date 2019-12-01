@@ -1,11 +1,11 @@
-# GoTournament
+# tournify
 
-[![GoDoc](https://godoc.org/github.com/tournify/gotournament?status.svg)](https://godoc.org/github.com/tournify/gotournament)
-[![Go Report Card](https://goreportcard.com/badge/github.com/tournify/gotournament)](https://goreportcard.com/report/github.com/tournify/gotournament)
-[![Build Status](https://api.travis-ci.org/tournify/gotournament.svg?branch=master)](https://travis-ci.org/tournify/gotournament)
-[![Build status](https://ci.appveyor.com/api/projects/status/9s2ykpx3wdnf9eiw?svg=true)](https://ci.appveyor.com/project/markustenghamn/gotournament)
-[![CircleCI](https://circleci.com/gh/tournify/gotournament.svg?style=svg)](https://circleci.com/gh/tournify/gotournament)
-[![codecov](https://codecov.io/gh/tournify/gotournament/branch/master/graph/badge.svg)](https://codecov.io/gh/tournify/gotournament)
+[![GoDoc](https://godoc.org/github.com/tournify/tournify?status.svg)](https://godoc.org/github.com/tournify/tournify)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tournify/tournify)](https://goreportcard.com/report/github.com/tournify/tournify)
+[![Build Status](https://api.travis-ci.org/tournify/tournify.svg?branch=master)](https://travis-ci.org/tournify/tournify)
+[![Build status](https://ci.appveyor.com/api/projects/status/9s2ykpx3wdnf9eiw?svg=true)](https://ci.appveyor.com/project/markustenghamn/tournify)
+[![CircleCI](https://circleci.com/gh/tournify/tournify.svg?style=svg)](https://circleci.com/gh/tournify/tournify)
+[![codecov](https://codecov.io/gh/tournify/tournify/branch/master/graph/badge.svg)](https://codecov.io/gh/tournify/tournify)
 
 This project aims to support the creation of any tournament.
 
@@ -28,11 +28,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/tournify/gotournament"
+	"github.com/tournify/tournify"
 )
 
 func main()  {
-	teams := []gotournament.Team{
+	teams := []tournify.Team{
 		{ID:0},
 		{ID:1},
 		{ID:2},
@@ -43,14 +43,14 @@ func main()  {
 		{ID:7},
 	}
 
-	teamInterfaces := make([]gotournament.TeamInterface, len(teams))
+	teamInterfaces := make([]tournify.TeamInterface, len(teams))
 
 	for i := range teams {
 		teamInterfaces[i] = &teams[i]
 	}
     
     // The CreateGroupTournamentFromTeams method takes a slice of teams along with the group count and meet count
-	tournament := gotournament.CreateGroupTournamentFromTeams(teamInterfaces, 2, 1)
+	tournament := tournify.CreateGroupTournamentFromTeams(teamInterfaces, 2, 1)
 
     // The print method gives us a string representing the current tournament
 	fmt.Println(tournament.Print())

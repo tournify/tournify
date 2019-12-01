@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ type TeamStatsInterface interface {
 	AddPoints(points int)
 }
 
-// TeamStats is a default struct used as an example of how structs can be implemented for gotournament
+// TeamStats is a default struct used as an example of how structs can be implemented for tournify
 type TeamStats struct {
 	Tournament    TournamentInterface
 	Group         TournamentGroupInterface
@@ -143,13 +143,13 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 
 			groupStats = append(groupStats, &stat)
 		}
-		groupStats = sortTournamentStats(groupStats)
+		groupStats = SortTournamentStats(groupStats)
 		stats = append(stats, groupStats...)
 	}
 	return stats, nil
 }
 
-func sortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {
+func SortTournamentStats(stats []TeamStatsInterface) []TeamStatsInterface {
 	sort.Slice(stats, func(i, j int) bool {
 		if stats[i].GetPoints() > stats[j].GetPoints() {
 			return true

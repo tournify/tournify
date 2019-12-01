@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 // ScoreInterface defines how scores should be defined. Scores hold points defined as a float.
 // Using a float64 should allow this library to be used for any type of game.
@@ -8,7 +8,7 @@ type ScoreInterface interface {
 	SetPoints(points float64)
 }
 
-// Score is a default struct used as an example of how structs can be implemented for gotournament
+// Score is a default struct used as an example of how structs can be implemented for tournify
 type Score struct {
 	ID     int
 	Points float64 // We want to support any type of game where points can be very high or even just decimals

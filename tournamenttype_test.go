@@ -1,6 +1,8 @@
-package gotournament
+package tournify
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestTournamentTypeString(t *testing.T) {
 	ttg1 := TournamentTypeGroup

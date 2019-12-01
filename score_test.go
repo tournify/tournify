@@ -1,6 +1,8 @@
-package gotournament
+package tournify
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestScoreGetID(t *testing.T) {
 	id := 42

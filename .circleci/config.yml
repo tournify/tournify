@@ -4,7 +4,7 @@ jobs:
     docker:
       # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
       - image: circleci/golang:1.13
-    working_directory: /go/src/github.com/tournify/gotournament
+    working_directory: /go/src/github.com/tournify/tournify
 
     steps:
       - checkout

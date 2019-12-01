@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 import "fmt"
 

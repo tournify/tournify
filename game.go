@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 import "fmt"
 
@@ -18,7 +18,7 @@ type GameInterface interface {
 	Print() string
 }
 
-// Game is a default struct used as an example of how structs can be implemented for gotournament
+// Game is a default struct used as an example of how structs can be implemented for tournify
 type Game struct {
 	ID     int
 	Scores []ScoreInterface

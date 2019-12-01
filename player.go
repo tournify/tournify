@@ -1,11 +1,11 @@
-package gotournament
+package tournify
 
 // PlayerInterface defines the needed methods for players used by this library
 type PlayerInterface interface {
 	GetID() int
 }
 
-// Player is a default struct used as an example of how structs can be implemented for gotournament
+// Player is a default struct used as an example of how structs can be implemented for tournify
 type Player struct {
 	ID int
 }

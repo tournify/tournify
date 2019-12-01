@@ -1,4 +1,4 @@
-package gotournament
+package tournify
 
 // TournamentType defines the type of tournament
 // TODO is this a good way of defining tournament types?
