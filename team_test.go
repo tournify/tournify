@@ -13,39 +13,6 @@ func TestTeamGetID(t *testing.T) {
 	}
 }
 
-func TestTeamGetPlayers(t *testing.T) {
-	player1 := Player{ID: 1}
-	player2 := Player{ID: 2}
-	player3 := Player{ID: 3}
-	player4 := Player{ID: 4}
-	team := Team{
-		ID: 0,
-		Players: []PlayerInterface{
-			player1,
-			player2,
-			player3,
-			player4,
-		},
-	}
-	if len(team.GetPlayers()) != 4 {
-		t.Errorf("Number of players on team does not match %d != %d", len(team.GetPlayers()), 4)
-	}
-	for i, p := range team.GetPlayers() {
-		if i == 0 && p.GetID() != 1 {
-			t.Errorf("Player ID is not correct %d != %d", p.GetID(), 1)
-		}
-		if i == 1 && p.GetID() != 2 {
-			t.Errorf("Player ID is not correct %d != %d", p.GetID(), 2)
-		}
-		if i == 2 && p.GetID() != 3 {
-			t.Errorf("Player ID is not correct %d != %d", p.GetID(), 3)
-		}
-		if i == 3 && p.GetID() != 4 {
-			t.Errorf("Player ID is not correct %d != %d", p.GetID(), 4)
-		}
-	}
-}
-
 func TestTeamGetGames(t *testing.T) {
 	game1 := Game{ID: 1}
 	game2 := Game{ID: 2}
@@ -61,7 +28,7 @@ func TestTeamGetGames(t *testing.T) {
 		},
 	}
 	if len(team.GetGames()) != 4 {
-		t.Errorf("Number of games for team does not match %d != %d", len(team.GetPlayers()), 4)
+		t.Errorf("Number of games for team does not match %d != %d", len(team.GetGames()), 4)
 	}
 	for i, g := range team.GetGames() {
 		if i == 0 && g.GetID() != 1 {
@@ -84,7 +51,7 @@ func TestTeamAppendGame(t *testing.T) {
 	team := Team{ID: 0}
 	team.AppendGame(&game)
 	if len(team.GetGames()) != 1 {
-		t.Errorf("Number of games for team does not match %d != %d", len(team.GetPlayers()), 4)
+		t.Errorf("Number of games for team does not match %d != %d", len(team.GetGames()), 4)
 	}
 	for i, g := range team.GetGames() {
 		if i == 0 && g.GetID() != 0 {
@@ -94,10 +61,6 @@ func TestTeamAppendGame(t *testing.T) {
 }
 
 func TestTeamPrint(t *testing.T) {
-	player1 := Player{ID: 1}
-	player2 := Player{ID: 2}
-	player3 := Player{ID: 3}
-	player4 := Player{ID: 4}
 	game1 := Game{ID: 1}
 	game2 := Game{ID: 2}
 	game3 := Game{ID: 3}
@@ -109,12 +72,6 @@ func TestTeamPrint(t *testing.T) {
 			&game2,
 			&game3,
 			&game4,
-		},
-		Players: []PlayerInterface{
-			player1,
-			player2,
-			player3,
-			player4,
 		},
 	}
 	if team.Print() != "Team ID: 0\n" {

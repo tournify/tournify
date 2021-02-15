@@ -137,6 +137,17 @@ func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInter
 	// We need to keep track of eliminated teams, maybe make a function for that
 	// also a function for teams still in the tournament
 	// A function to calculate which team proceeds as well and generate the next game
+	for i := 0; i < len(teams); i += 2 {
+		var game Game
+		if i+1 < len(teams) {
+			game = Game{Teams: []TeamInterface{teams[i], teams[i+1]}}
+			teams[i+1].AppendGame(&game)
+		} else {
+			game = Game{Teams: []TeamInterface{teams[i], nil}}
+		}
+		teams[i].AppendGame(&game)
+		games = append(games, &game)
+	}
 	// Return a tournament
 	return Tournament{Games: games, Teams: teams, Type: TournamentTypeElimination}
 }
