@@ -4,7 +4,7 @@ os: Windows Server 2012 R2
 
 build: off
 
-stack: go 1.13
+stack: go 1.15
 
 clone_folder: c:\gopath\src\github.com\tournify\tournify
 
