@@ -309,6 +309,11 @@ func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount in
 	return res
 }
 
+// NumberOfGamesForEliminationTournament Calculates the number of games in a elimination tournament based on the number of teams
+func NumberOfGamesForEliminationTournament(teamCount int) int {
+	return teamCount / 2
+}
+
 // DivideRoundUp takes two ints, divides them and rounds the result up to the nearest int
 func DivideRoundUp(a int, b int) int {
 	return int(math.Ceil(float64(a) / float64(b)))
