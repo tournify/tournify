@@ -106,6 +106,7 @@ func GetGroupTournamentStats(t TournamentInterface, winPoints int, lossPoints in
 	return stats, nil
 }
 
+// GetGroupStats returns the current stats for all the teams in a single group
 func GetGroupStats(group GroupInterface, winPoints int, lossPoints int, tiePoints int) []TeamStatsInterface {
 	var groupStats []TeamStatsInterface
 	teamStats := map[int]*TeamStats{}
