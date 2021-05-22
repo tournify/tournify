@@ -1,7 +1,6 @@
 package tournify
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 )
@@ -16,7 +15,6 @@ type TournamentInterface interface {
 	GetGroups() []GroupInterface
 	GetGames() []GameInterface
 	Print() string
-	Marshal() ([]byte, error)
 }
 
 // Tournament is a default struct used as an example of how structs can be implemented for tournify
@@ -99,42 +97,6 @@ func (t Tournament) Print() string {
 		p += games.Print()
 	}
 	return p
-}
-
-// Marshal returns the tournament as json
-func (t Tournament) Marshal() ([]byte, error) {
-	tournament := struct {
-		Type   int
-		Groups [][]byte
-		Teams  [][]byte
-		Games  [][]byte
-	}{}
-	tournament.Type = t.GetType()
-	if t.GetType() == 0 {
-		for _, group := range t.GetGroups() {
-			tmpGroup, err := group.Marshal()
-			if err != nil {
-				return nil, err
-			}
-			tournament.Groups = append(tournament.Groups, tmpGroup)
-		}
-	} else {
-		for _, team := range t.GetTeams() {
-			tmpTeam, err := team.Marshal()
-			if err != nil {
-				return nil, err
-			}
-			tournament.Teams = append(tournament.Teams, tmpTeam)
-		}
-	}
-	for _, game := range t.GetGames() {
-		tmpGame, err := game.Marshal()
-		if err != nil {
-			return nil, err
-		}
-		tournament.Games = append(tournament.Games, tmpGame)
-	}
-	return json.Marshal(tournament)
 }
 
 // CreateTournament creates a tournament with the simplest input. It is recommended to create a slice with

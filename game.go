@@ -1,7 +1,6 @@
 package tournify
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -19,7 +18,6 @@ type GameInterface interface {
 	GetScores() []ScoreInterface // For games that can have any number of scores
 	SetScore(homeScore float64, awayScore float64)
 	Print() string
-	Marshal() ([]byte, error)
 }
 
 // Game is a default struct used as an example of how structs can be implemented for tournify
@@ -100,20 +98,4 @@ func (g *Game) Print() string {
 		g.GetAwayTeam().GetID(),
 		g.GetHomeScore().GetPoints(),
 		g.GetAwayScore().GetPoints())
-}
-
-func (g *Game) Marshal() ([]byte, error) {
-	game := struct {
-		ID        int
-		HomeTeam  int
-		AwayTeam  int
-		HomeScore float64
-		AwayScore float64
-	}{}
-	game.ID = g.GetID()
-	game.HomeTeam = g.GetHomeTeam().GetID()
-	game.AwayTeam = g.GetAwayTeam().GetID()
-	game.HomeScore = g.GetHomeScore().GetPoints()
-	game.AwayScore = g.GetAwayScore().GetPoints()
-	return json.Marshal(game)
 }

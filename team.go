@@ -1,7 +1,6 @@
 package tournify
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -11,7 +10,6 @@ type TeamInterface interface {
 	GetID() int
 	GetEliminatedCount() int
 	Print() string
-	Marshal() ([]byte, error)
 }
 
 // Team is a default struct used as an example of how structs can be implemented for tournify
@@ -28,10 +26,6 @@ func (t *Team) GetID() int {
 // Print writes team details to stdout
 func (t *Team) Print() string {
 	return fmt.Sprintf("Team ID: %d\n", t.GetID())
-}
-
-func (t *Team) Marshal() ([]byte, error) {
-	return json.Marshal(t)
 }
 
 // GetEliminatedCount gets the number of times the team has been eliminated in a multiple elimination tournament

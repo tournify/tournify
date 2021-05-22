@@ -1,7 +1,6 @@
 package tournify
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -15,7 +14,6 @@ type GroupInterface interface {
 	AppendTeams(teams []TeamInterface)
 	AppendTeam(team TeamInterface)
 	Print() string
-	Marshal() ([]byte, error)
 }
 
 // Group is for group tournaments only
@@ -68,20 +66,4 @@ func (t *Group) Print() string {
 	}
 	p += fmt.Sprintf("\n")
 	return p
-}
-
-func (t *Group) Marshal() ([]byte, error) {
-	group := struct {
-		ID    int
-		Teams [][]byte
-	}{}
-	group.ID = t.ID
-	for _, team := range *t.GetTeams() {
-		tmpTeam, err := team.Marshal()
-		if err != nil {
-			return nil, err
-		}
-		group.Teams = append(group.Teams, tmpTeam)
-	}
-	return json.Marshal(group)
 }
