@@ -5,7 +5,7 @@ import (
 )
 
 func TestTournamentGroupGetID(t *testing.T) {
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 1,
 	}
 	if tg.GetID() != 1 {
@@ -18,7 +18,7 @@ func TestTournamentGroupGetTeams(t *testing.T) {
 	team2 := Team{ID: 2}
 	team3 := Team{ID: 3}
 	team4 := Team{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 		Teams: []TeamInterface{
 			&team1,
@@ -51,7 +51,7 @@ func TestTournamentGroupGetGames(t *testing.T) {
 	game2 := Game{ID: 2}
 	game3 := Game{ID: 3}
 	game4 := Game{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 		Games: []GameInterface{
 			&game1,
@@ -84,7 +84,7 @@ func TestTournamentGroupAppendGame(t *testing.T) {
 	game2 := Game{ID: 2}
 	game3 := Game{ID: 3}
 	game4 := Game{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 	}
 	tg.AppendGame(&game1)
@@ -115,7 +115,7 @@ func TestTournamentGroupAppendGames(t *testing.T) {
 	game2 := Game{ID: 2}
 	game3 := Game{ID: 3}
 	game4 := Game{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 	}
 	tg.AppendGames([]GameInterface{&game1, &game2, &game3, &game4})
@@ -143,7 +143,7 @@ func TestTournamentGroupAppendTeam(t *testing.T) {
 	team2 := Team{ID: 2}
 	team3 := Team{ID: 3}
 	team4 := Team{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 	}
 	tg.AppendTeam(&team1)
@@ -174,7 +174,7 @@ func TestTournamentGroupAppendTeams(t *testing.T) {
 	team2 := Team{ID: 2}
 	team3 := Team{ID: 3}
 	team4 := Team{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 	}
 	tg.AppendTeams([]TeamInterface{&team1, &team2, &team3, &team4})
@@ -206,7 +206,7 @@ func TestTournamentGroupPrint(t *testing.T) {
 	game2 := Game{ID: 2}
 	game3 := Game{ID: 3}
 	game4 := Game{ID: 4}
-	tg := TournamentGroup{
+	tg := Group{
 		ID: 0,
 		Games: []GameInterface{
 			&game1,

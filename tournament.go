@@ -1,6 +1,7 @@
 package tournify
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 )
@@ -12,16 +13,17 @@ type TournamentInterface interface {
 	GetTeams() []TeamInterface
 	GetEliminatedTeams() []TeamInterface // For elimination style tournaments
 	GetRemainingTeams() []TeamInterface  // For elimination style tournaments
-	GetGroups() []TournamentGroupInterface
+	GetGroups() []GroupInterface
 	GetGames() []GameInterface
 	Print() string
+	Marshal() ([]byte, error)
 }
 
 // Tournament is a default struct used as an example of how structs can be implemented for tournify
 type Tournament struct {
 	Type   TournamentType // Is it elimination or group or ladder or poker? What is a type?
 	Teams  []TeamInterface
-	Groups []TournamentGroupInterface
+	Groups []GroupInterface
 	Games  []GameInterface
 }
 
@@ -41,7 +43,7 @@ func (t Tournament) GetTeams() []TeamInterface {
 }
 
 // GetGroups returns the group slice
-func (t Tournament) GetGroups() []TournamentGroupInterface {
+func (t Tournament) GetGroups() []GroupInterface {
 	return t.Groups
 }
 
@@ -99,6 +101,42 @@ func (t Tournament) Print() string {
 	return p
 }
 
+// Marshal returns the tournament as json
+func (t Tournament) Marshal() ([]byte, error) {
+	tournament := struct {
+		Type   int
+		Groups [][]byte
+		Teams  [][]byte
+		Games  [][]byte
+	}{}
+	tournament.Type = t.GetType()
+	if t.GetType() == 0 {
+		for _, group := range t.GetGroups() {
+			tmpGroup, err := group.Marshal()
+			if err != nil {
+				return nil, err
+			}
+			tournament.Groups = append(tournament.Groups, tmpGroup)
+		}
+	} else {
+		for _, team := range t.GetTeams() {
+			tmpTeam, err := team.Marshal()
+			if err != nil {
+				return nil, err
+			}
+			tournament.Teams = append(tournament.Teams, tmpTeam)
+		}
+	}
+	for _, game := range t.GetGames() {
+		tmpGame, err := game.Marshal()
+		if err != nil {
+			return nil, err
+		}
+		tournament.Games = append(tournament.Games, tmpGame)
+	}
+	return json.Marshal(tournament)
+}
+
 // CreateTournament creates a tournament with the simplest input. It is recommended to create a slice with
 // specific use via CreateTournamentFromTeams as this method will generate it's own Teams as a sort of placeholder.
 func CreateTournament(teamCount int, meetCount int, groupCount int, tournamentType int) TournamentInterface {
@@ -141,11 +179,9 @@ func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInter
 		var game Game
 		if i+1 < len(teams) {
 			game = Game{Teams: []TeamInterface{teams[i], teams[i+1]}}
-			teams[i+1].AppendGame(&game)
 		} else {
 			game = Game{Teams: []TeamInterface{teams[i], nil}}
 		}
-		teams[i].AppendGame(&game)
 		games = append(games, &game)
 	}
 	// Return a tournament
@@ -159,11 +195,11 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 		return nil
 	}
 
-	groups := []TournamentGroupInterface{&TournamentGroup{ID: 0}}
+	groups := []GroupInterface{&Group{ID: 0}}
 	teamsPerGroup := len(teams) / groupCount
 
 	for i := 1; i < groupCount; i++ {
-		groups = append(groups, &TournamentGroup{ID: i})
+		groups = append(groups, &Group{ID: i})
 	}
 
 	groupIndex := 0
@@ -181,7 +217,7 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 // CreateGroupTournamentFromGroups takes a slice of groups that contain teams and returns a group tournament
 // TODO simplify and break down this function in to smaller chunks?
 // TODO this method currently uses cross matching for games but other types of matching could be supported
-func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCount int) TournamentInterface {
+func CreateGroupTournamentFromGroups(groups []GroupInterface, meetCount int) TournamentInterface {
 	// Works best for an even amount of teams in every group
 	var games []GameInterface
 	var teams []TeamInterface
@@ -231,9 +267,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 					for hi, hteam := range homeTeams {
 						game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
 						groups[gi].AppendGame(&game)
-						hteam.AppendGame(&game)
 						games = append(games, &game)
-						awayTeams[hi].AppendGame(&game)
 						gameIndex++
 					}
 					homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
