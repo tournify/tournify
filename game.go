@@ -10,8 +10,11 @@ import (
 // allow for other types of games where the number of teams and scores is not limited to 2
 type GameInterface interface {
 	GetID() int
-	GetHomeTeam() TeamInterface // TODO home and away team could just be first or last team in team slice? a game could have more than 2 teams?
+	GetParentIDs() []int
+	GetHomeTeam() TeamInterface
 	GetAwayTeam() TeamInterface
+	SetHomeTeam(t TeamInterface)
+	SetAwayTeam(t TeamInterface)
 	GetHomeScore() ScoreInterface
 	GetAwayScore() ScoreInterface
 	GetTeams() []TeamInterface   // For games that can have any number of teams
@@ -22,9 +25,15 @@ type GameInterface interface {
 
 // Game is a default struct used as an example of how structs can be implemented for tournify
 type Game struct {
-	ID     int
-	Scores []ScoreInterface
-	Teams  []TeamInterface
+	ID        int
+	ParentIDs []int
+	Scores    []ScoreInterface
+	Teams     []TeamInterface
+}
+
+// GetParentIDs gets the ids of any games that caused this game to be generated, typically this is used in Elimination games
+func (g *Game) GetParentIDs() []int {
+	return g.ParentIDs
 }
 
 // SetScore sets home and away scores for home and away teams, this function is needed
@@ -46,20 +55,36 @@ func (g *Game) GetID() int {
 
 // GetHomeTeam returns the first team in the Teams slice
 func (g *Game) GetHomeTeam() TeamInterface {
-	if len(g.Scores) < 1 {
+	if len(g.Teams) < 1 {
 		g.Teams = append(g.Teams, &Team{})
 	}
 	return g.Teams[0]
 }
 
+func (g *Game) SetHomeTeam(t TeamInterface) {
+	if len(g.Teams) < 1 {
+		g.Teams = append(g.Teams, &Team{})
+	}
+	g.Teams[0] = t
+}
+
 // GetAwayTeam returns the second team in the Teams slice
 func (g *Game) GetAwayTeam() TeamInterface {
-	if len(g.Scores) < 1 {
+	if len(g.Teams) < 1 {
 		g.Teams = append(g.Teams, &Team{}, &Team{})
-	} else if len(g.Scores) < 2 {
+	} else if len(g.Teams) < 2 {
 		g.Teams = append(g.Teams, &Team{})
 	}
 	return g.Teams[1]
+}
+
+func (g *Game) SetAwayTeam(t TeamInterface) {
+	if len(g.Teams) < 1 {
+		g.Teams = append(g.Teams, &Team{}, &Team{})
+	} else if len(g.Teams) < 2 {
+		g.Teams = append(g.Teams, &Team{})
+	}
+	g.Teams[1] = t
 }
 
 // GetHomeScore returns the first score in the Scores slice
