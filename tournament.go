@@ -167,13 +167,15 @@ func (t Tournament) SaveGame(game GameInterface) error {
 					tournamentGames := t.GetGames()
 					for ti, tg := range tournamentGames {
 						if closestGameID == tg.GetID() {
-							if tg.GetHomeTeam().GetID() == 0 || tg.GetHomeTeam().GetID() == team.GetID() {
-								tournamentGames[ti].SetHomeTeam(team)
-							} else {
-								tournamentGames[ti].SetAwayTeam(team)
+							if t.GetGameDepth(tg) == currentDepth+1 {
+								if tg.GetHomeTeam().GetID() == 0 || tg.GetHomeTeam().GetID() == team.GetID() {
+									tournamentGames[ti].SetHomeTeam(team)
+								} else {
+									tournamentGames[ti].SetAwayTeam(team)
+								}
+								t.SetGames(tournamentGames)
+								return nil
 							}
-							t.SetGames(tournamentGames)
-							return nil
 						}
 					}
 				}
