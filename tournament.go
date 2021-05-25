@@ -52,6 +52,7 @@ func (t Tournament) GetGames() []GameInterface {
 	return t.Games
 }
 
+// SetGames sets the tournaments games slice
 func (t Tournament) SetGames(games []GameInterface) {
 	t.Games = games
 }
@@ -84,7 +85,8 @@ func (t Tournament) GetRemainingTeams() []TeamInterface {
 	return remainingTeams
 }
 
-func (t Tournament) SaveGame(game GameInterface) error {
+// CloseGame evaluates the current game and creates or updates the following games
+func (t Tournament) CloseGame(game GameInterface) error {
 	if TournamentType(t.GetType()) == TournamentTypeElimination {
 		// Determine winner of game
 		var team TeamInterface
@@ -192,10 +194,12 @@ func (t Tournament) SaveGame(game GameInterface) error {
 	return errors.New("wrong tournament type")
 }
 
+// AppendGame appends a game to the tournament game slice
 func (t Tournament) AppendGame(game GameInterface) {
 	t.Games = append(t.Games, game)
 }
 
+// IsDepthFull checks if the expected numbers of games have been filled for a depth in an elimination tournament
 func (t Tournament) IsDepthFull(depth int) bool {
 	if depth <= 0 {
 		return true
@@ -215,6 +219,7 @@ func (t Tournament) IsDepthFull(depth int) bool {
 	return false
 }
 
+// GetGamesAtDepth takes an int for depth and returns any games at the depth as a slice
 func (t Tournament) GetGamesAtDepth(depth int) (games []GameInterface) {
 	for _, g := range t.GetGames() {
 		if t.GetGameDepth(g) == depth {
@@ -237,6 +242,7 @@ func (t Tournament) GetGameDepth(game GameInterface) int {
 	return 0
 }
 
+// GetGameByID takes an int and returns a game with that id if it exists in the tournament
 func (t Tournament) GetGameByID(id int) GameInterface {
 	for _, g := range t.GetGames() {
 		if g.GetID() == id {
@@ -265,6 +271,7 @@ func (t Tournament) GetGameFirstAncestorID(game GameInterface) int {
 	return game.GetID()
 }
 
+// GetGameLastDescendantID gets the id of the last game that has been generated off of the provided game
 func (t Tournament) GetGameLastDescendantID(game GameInterface) int {
 	for _, g := range t.GetGames() {
 		for _, id := range g.GetParentIDs() {

@@ -61,6 +61,7 @@ func (g *Game) GetHomeTeam() TeamInterface {
 	return g.Teams[0]
 }
 
+// SetHomeTeam sets the first team of the game
 func (g *Game) SetHomeTeam(t TeamInterface) {
 	if len(g.Teams) < 1 {
 		g.Teams = append(g.Teams, &Team{})
@@ -78,6 +79,7 @@ func (g *Game) GetAwayTeam() TeamInterface {
 	return g.Teams[1]
 }
 
+// SetAwayTeam sets the second team of the game and adds a placeholder home team if it's not already there
 func (g *Game) SetAwayTeam(t TeamInterface) {
 	if len(g.Teams) < 1 {
 		g.Teams = append(g.Teams, &Team{}, &Team{})
