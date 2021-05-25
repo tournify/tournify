@@ -1,6 +1,7 @@
 package tournify
 
 import (
+	"errors"
 	"fmt"
 	"math"
 )
@@ -12,8 +13,9 @@ type TournamentInterface interface {
 	GetTeams() []TeamInterface
 	GetEliminatedTeams() []TeamInterface // For elimination style tournaments
 	GetRemainingTeams() []TeamInterface  // For elimination style tournaments
-	GetGroups() []TournamentGroupInterface
+	GetGroups() []GroupInterface
 	GetGames() []GameInterface
+	AppendGame(game GameInterface)
 	Print() string
 }
 
@@ -21,7 +23,7 @@ type TournamentInterface interface {
 type Tournament struct {
 	Type   TournamentType // Is it elimination or group or ladder or poker? What is a type?
 	Teams  []TeamInterface
-	Groups []TournamentGroupInterface
+	Groups []GroupInterface
 	Games  []GameInterface
 }
 
@@ -41,13 +43,18 @@ func (t Tournament) GetTeams() []TeamInterface {
 }
 
 // GetGroups returns the group slice
-func (t Tournament) GetGroups() []TournamentGroupInterface {
+func (t Tournament) GetGroups() []GroupInterface {
 	return t.Groups
 }
 
 // GetGames returns the game slice
 func (t Tournament) GetGames() []GameInterface {
 	return t.Games
+}
+
+// SetGames sets the tournaments games slice
+func (t Tournament) SetGames(games []GameInterface) {
+	t.Games = games
 }
 
 // GetEliminatedTeams gets all teams that have been eliminated at least one time in an elimination tournament
@@ -76,6 +83,204 @@ func (t Tournament) GetRemainingTeams() []TeamInterface {
 		}
 	}
 	return remainingTeams
+}
+
+// CloseGame evaluates the current game and creates or updates the following games
+func (t Tournament) CloseGame(game GameInterface) error {
+	if TournamentType(t.GetType()) == TournamentTypeElimination {
+		// Determine winner of game
+		var team TeamInterface
+		if game.GetHomeTeam().GetID() == 0 {
+			return errors.New("no teams with ids are present in the game")
+		} else if game.GetAwayTeam().GetID() == 0 {
+			team = game.GetHomeTeam()
+		} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
+			return errors.New("can not determine winner, scores are equal")
+		} else if game.GetHomeScore().GetPoints() > game.GetAwayScore().GetPoints() {
+			team = game.GetHomeTeam()
+		} else {
+			team = game.GetAwayTeam()
+		}
+		// TODO on save we may need to delete or update descendants
+		currentDepth := t.GetGameDepth(game)
+		gs := t.GetGamesAtDepth(currentDepth + 1)
+		if len(gs) != 0 {
+			for _, g := range gs {
+				for _, p := range g.GetParentIDs() {
+					if p == game.GetID() {
+						// determine which team is in the new game
+						// If it is the correct team we do nothing
+						for _, gt := range g.GetTeams() {
+							if gt.GetID() == team.GetID() {
+								return nil
+							}
+						}
+						// If it is the wrong team we need to switch it
+						tournamentGames := t.GetGames()
+						for ti, tg := range tournamentGames {
+							for _, gt := range tg.GetTeams() {
+								for i, gt2 := range game.GetTeams() {
+									if gt.GetID() == gt2.GetID() {
+										if i == 0 {
+											tournamentGames[ti].SetHomeTeam(team)
+										} else {
+											tournamentGames[ti].SetAwayTeam(team)
+										}
+										t.SetGames(tournamentGames)
+										return nil
+									}
+								}
+							}
+						}
+					}
+				}
+				// Check if there is a game which should have this game as a parent but doesn't
+				if len(g.GetParentIDs()) == 1 {
+					// This should be any of the teams with the closest first ancestor of the previous depth but only if the depth is filled out
+					// we can check the teams that were in the game next to us and track the winners of their games to our depth
+					var closest GameInterface
+					prevdiff := 0
+					initialGameID := t.GetGameFirstAncestorID(g)
+					baseGames := t.GetGamesAtDepth(0)
+					for i, bg := range baseGames {
+						diff := 0
+						if closest == nil && i == 0 {
+							closest = bg
+						} else {
+							if initialGameID >= bg.GetID() {
+								diff = initialGameID - bg.GetID()
+							} else {
+								diff = bg.GetID() - initialGameID
+							}
+						}
+						if closest != nil {
+							if initialGameID >= bg.GetID() {
+								prevdiff = initialGameID - closest.GetID()
+							} else {
+								prevdiff = bg.GetID() - closest.GetID()
+							}
+							if prevdiff > diff {
+								closest = bg
+							}
+						}
+					}
+					// Get the last descendant of the closest game, if it's at the same depth we use that game
+					closestGameID := t.GetGameLastDescendantID(closest)
+					tournamentGames := t.GetGames()
+					for ti, tg := range tournamentGames {
+						if closestGameID == tg.GetID() {
+							if t.GetGameDepth(tg) == currentDepth+1 {
+								if tg.GetHomeTeam().GetID() == 0 || tg.GetHomeTeam().GetID() == team.GetID() {
+									tournamentGames[ti].SetHomeTeam(team)
+								} else {
+									tournamentGames[ti].SetAwayTeam(team)
+								}
+								t.SetGames(tournamentGames)
+								return nil
+							}
+						}
+					}
+				}
+			}
+		}
+		t.AppendGame(&Game{
+			ID:        len(t.GetGames()),
+			ParentIDs: []int{game.GetID()},
+			Scores:    nil,
+			Teams:     []TeamInterface{team},
+		})
+		return nil
+	}
+	return errors.New("wrong tournament type")
+}
+
+// AppendGame appends a game to the tournament game slice
+func (t Tournament) AppendGame(game GameInterface) {
+	t.Games = append(t.Games, game)
+}
+
+// IsDepthFull checks if the expected numbers of games have been filled for a depth in an elimination tournament
+func (t Tournament) IsDepthFull(depth int) bool {
+	if depth <= 0 {
+		return true
+	}
+	c := len(t.GetGamesAtDepth(0))
+	// Fix for uneven count
+	if c%2 != 0 {
+		c = +1
+	}
+	c = c / (2 * depth)
+	// It has to be less than or equal here
+	// start with 10 games, depth is 2 therefore c is 2.5 and games at depth when full is 3 but 2 games is not full
+	// start with 8 games, depth is 2 therefore c is 2 and games at depth when full is 2
+	if c <= len(t.GetGamesAtDepth(depth)) {
+		return true
+	}
+	return false
+}
+
+// GetGamesAtDepth takes an int for depth and returns any games at the depth as a slice
+func (t Tournament) GetGamesAtDepth(depth int) (games []GameInterface) {
+	for _, g := range t.GetGames() {
+		if t.GetGameDepth(g) == depth {
+			games = append(games, g)
+		}
+	}
+	return games
+}
+
+// GetGameDepth gets the depth of the game in a tournament such as an elimination tournament. It is the same as counting how many games each team had to win in order to get to this game (a team which is by itself in a game automatically wins).
+func (t Tournament) GetGameDepth(game GameInterface) int {
+	ps := game.GetParentIDs()
+	if len(ps) > 0 {
+		for _, g := range t.GetGames() {
+			if g.GetID() == ps[0] {
+				return 1 + t.GetGameDepth(g)
+			}
+		}
+	}
+	return 0
+}
+
+// GetGameByID takes an int and returns a game with that id if it exists in the tournament
+func (t Tournament) GetGameByID(id int) GameInterface {
+	for _, g := range t.GetGames() {
+		if g.GetID() == id {
+			return g
+		}
+	}
+	return nil
+}
+
+// GetGameFirstAncestorID gets the lowest game id with a depth of 0 which this game is an descendant of
+func (t Tournament) GetGameFirstAncestorID(game GameInterface) int {
+	ps := game.GetParentIDs()
+	if len(ps) > 0 {
+		lowestParent := 0
+		for _, pid := range ps {
+			if pid > lowestParent {
+				lowestParent = pid
+			}
+		}
+		for _, g := range t.GetGames() {
+			if g.GetID() == lowestParent {
+				return t.GetGameFirstAncestorID(game)
+			}
+		}
+	}
+	return game.GetID()
+}
+
+// GetGameLastDescendantID gets the id of the last game that has been generated off of the provided game
+func (t Tournament) GetGameLastDescendantID(game GameInterface) int {
+	for _, g := range t.GetGames() {
+		for _, id := range g.GetParentIDs() {
+			if id == game.GetID() {
+				return t.GetGameLastDescendantID(g)
+			}
+		}
+	}
+	return game.GetID()
 }
 
 // Print writes the full tournament details to a string
@@ -131,12 +336,19 @@ func CreateTournamentFromTeams(teams []TeamInterface, meetCount int, groupCount 
 }
 
 // CreateEliminationTournamentFromTeams takes a slice of teams and generates a elimination tournament
+// The ID used for games are very important for elimination tournaments as it is used to determine the home or away team in later games
 func CreateEliminationTournamentFromTeams(teams []TeamInterface) TournamentInterface {
 	// Create the initial games of the elimination tournament
 	var games []GameInterface
-	// We need to keep track of eliminated teams, maybe make a function for that
-	// also a function for teams still in the tournament
-	// A function to calculate which team proceeds as well and generate the next game
+	gameID := 0
+	for i := 0; i < len(teams); i += 2 {
+		game := Game{ID: gameID, Teams: []TeamInterface{teams[i]}}
+		if i+1 < len(teams) {
+			game.SetAwayTeam(teams[i+1])
+		}
+		gameID++
+		games = append(games, &game)
+	}
 	// Return a tournament
 	return Tournament{Games: games, Teams: teams, Type: TournamentTypeElimination}
 }
@@ -148,11 +360,11 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 		return nil
 	}
 
-	groups := []TournamentGroupInterface{&TournamentGroup{ID: 0}}
+	groups := []GroupInterface{&Group{ID: 0}}
 	teamsPerGroup := len(teams) / groupCount
 
 	for i := 1; i < groupCount; i++ {
-		groups = append(groups, &TournamentGroup{ID: i})
+		groups = append(groups, &Group{ID: i})
 	}
 
 	groupIndex := 0
@@ -170,7 +382,7 @@ func CreateGroupTournamentFromTeams(teams []TeamInterface, groupCount int, meetC
 // CreateGroupTournamentFromGroups takes a slice of groups that contain teams and returns a group tournament
 // TODO simplify and break down this function in to smaller chunks?
 // TODO this method currently uses cross matching for games but other types of matching could be supported
-func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCount int) TournamentInterface {
+func CreateGroupTournamentFromGroups(groups []GroupInterface, meetCount int) TournamentInterface {
 	// Works best for an even amount of teams in every group
 	var games []GameInterface
 	var teams []TeamInterface
@@ -220,9 +432,7 @@ func CreateGroupTournamentFromGroups(groups []TournamentGroupInterface, meetCoun
 					for hi, hteam := range homeTeams {
 						game := Game{Teams: []TeamInterface{hteam, awayTeams[hi]}}
 						groups[gi].AppendGame(&game)
-						hteam.AppendGame(&game)
 						games = append(games, &game)
-						awayTeams[hi].AppendGame(&game)
 						gameIndex++
 					}
 					homeTeams, awayTeams = rotateTeamsForCrossMatching(homeTeams, awayTeams)
@@ -296,6 +506,11 @@ func NumberOfGamesForGroupTournament(teamCount int, groupCount int, meetCount in
 		res += int(math.Mod(float64(teamCount), float64(groupCount))) * meetCount
 	}
 	return res
+}
+
+// NumberOfGamesForEliminationTournament Calculates the number of games in a elimination tournament based on the number of teams
+func NumberOfGamesForEliminationTournament(teamCount int) int {
+	return teamCount / 2
 }
 
 // DivideRoundUp takes two ints, divides them and rounds the result up to the nearest int

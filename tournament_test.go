@@ -137,3 +137,25 @@ func TestNumberOfGamesForGroupTournament(t *testing.T) {
 		t.Errorf("NumberOfGames %d %s", NumberOfGamesForGroupTournament(16, 2, 4), "!= 224")
 	}
 }
+
+func TestCreateEliminationTournament(t *testing.T) {
+	// Test a group tournament with 8 teams in twp groups that meet each other twice
+	teamCount := 8
+	tournament := CreateTournament(teamCount, 0, 0, int(TournamentTypeElimination))
+	assertEliminationTournament(t, tournament, teamCount)
+}
+
+// assertGroupTournament ensures that a group tournament has been created as expected
+func assertEliminationTournament(t *testing.T, tournament TournamentInterface, teamCount int) {
+	if len(tournament.GetTeams()) != teamCount {
+		t.Errorf("Team count does not match input")
+	}
+	if len(tournament.GetGames()) != NumberOfGamesForEliminationTournament(teamCount) {
+		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForEliminationTournament(teamCount))
+	}
+	for _, game := range tournament.GetGames() {
+		if game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
+			t.Errorf("Two teams with the same ID are facing each other %d vs %d", game.GetHomeTeam().GetID(), game.GetAwayTeam().GetID())
+		}
+	}
+}

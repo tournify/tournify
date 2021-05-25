@@ -15,11 +15,11 @@ func TestSortTournamentStats(t *testing.T) {
 
 	for i, s := range stats {
 		if i == 0 {
-			verifyStats(s, 11, 9, 9, t)
+			verifyStats(s, 11, 9, 9, 0, t)
 		} else if i == 1 {
-			verifyStats(s, 10, 11, 9, t)
+			verifyStats(s, 10, 11, 9, -2, t)
 		} else if i == 2 {
-			verifyStats(s, 10, 10, 10, t)
+			verifyStats(s, 10, 10, 10, 0, t)
 		}
 	}
 
@@ -50,27 +50,27 @@ func TestGroupTournamentStats(t *testing.T) {
 
 	for i, s := range stats {
 		if i == 0 {
-			verifyStats(s, 13, 8, 10, t)
+			verifyStats(s, 13, 28, 50, 22, t)
 		} else if i == 1 {
-			verifyStats(s, 10, -10, 1, t)
+			verifyStats(s, 10, -4, 34, 38, t)
 		} else if i == 2 {
-			verifyStats(s, 9, -8, 2, t)
+			verifyStats(s, 9, -4, 34, 38, t)
 		} else if i == 3 {
-			verifyStats(s, 3, 10, 11, t)
+			verifyStats(s, 3, -20, 26, 46, t)
 		} else if i == 4 {
-			verifyStats(s, 13, 8, 10, t)
+			verifyStats(s, 13, 28, 50, 22, t)
 		} else if i == 5 {
-			verifyStats(s, 10, -10, 1, t)
+			verifyStats(s, 10, -4, 34, 38, t)
 		} else if i == 6 {
-			verifyStats(s, 9, -8, 2, t)
+			verifyStats(s, 9, -4, 34, 38, t)
 		} else if i == 7 {
-			verifyStats(s, 3, 10, 11, t)
+			verifyStats(s, 3, -20, 26, 46, t)
 		}
 	}
 
 }
 
-func verifyStats(stats TeamStatsInterface, points int, diff float64, pointsfor float64, t *testing.T) {
+func verifyStats(stats TeamStatsInterface, points int, diff float64, pointsfor float64, pointsAgainst float64, t *testing.T) {
 	if stats.GetPoints() != points {
 		t.Errorf("Expected points %d, currently: %d", points, stats.GetPoints())
 	}
@@ -78,6 +78,9 @@ func verifyStats(stats TeamStatsInterface, points int, diff float64, pointsfor f
 		t.Errorf("Expected diff %f, currently: %f", diff, stats.GetDiff())
 	}
 	if stats.GetPointsFor() != pointsfor {
-		t.Errorf("Expected points %f, currently: %f", pointsfor, stats.GetPointsFor())
+		t.Errorf("Expected points for to be %f, currently: %f", pointsfor, stats.GetPointsFor())
+	}
+	if stats.GetPointsAgainst() != pointsAgainst {
+		t.Errorf("Expected points against to be %f, currently: %f", pointsAgainst, stats.GetPointsAgainst())
 	}
 }
