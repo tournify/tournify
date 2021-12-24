@@ -2,6 +2,7 @@ package tournify
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 )
 
@@ -19,6 +20,7 @@ type TeamStatsInterface interface {
 	GetDiff() float64
 	GetPoints() int
 	AddPoints(points int)
+	Print() string
 }
 
 // TeamStats is a default struct used as an example of how structs can be implemented for tournify
@@ -88,6 +90,21 @@ func (t *TeamStats) GetPoints() int {
 // AddPoints adds the specified number of points to Points
 func (t *TeamStats) AddPoints(points int) {
 	t.Points += points
+}
+
+// Print prints the stats as a single string
+func (t *TeamStats) Print() string {
+	return fmt.Sprintf("%d\t%d\t%d\t%d\t%d\t%d\t%.0f/%.0f\t%.0f\t%d", t.GetGroup().GetID(), t.GetTeam().GetID(), t.GetPlayed(), t.GetWins(), t.GetTies(), t.GetLosses(), t.GetPointsFor(), t.GetPointsAgainst(), t.GetDiff(), t.GetPoints())
+}
+
+// PrintGroupTournamentStats takes an array of team stats and returns them as a single string with a new line for each team
+func PrintGroupTournamentStats(teamStats []TeamStatsInterface) string {
+	res := "Group\tTeam\tPlayed\tWins\tTies\tLosses\t+/-\tDiff\tPoints\n"
+	for _, ts := range teamStats {
+		res += ts.Print()
+		res += "\n"
+	}
+	return res
 }
 
 // GetGroupTournamentStats takes 4 inputs. The first input is the tournament itself.
