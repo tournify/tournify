@@ -34,57 +34,76 @@ func TestTournamentInvalidMeetCount(t *testing.T) {
 	}
 }
 
-func TestCreateGroupTournament(t *testing.T) {
+func TestCreateGroupTournamentVariation1(t *testing.T) {
 	// Test a group tournament with 8 teams in twp groups that meet each other twice
 	teamCount := 8
 	meetCount := 2
 	groupCount := 2
 	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
+
+func TestCreateGroupTournamentVariation2(t *testing.T) {
 	// Test a group tournament with 2 teams that meet once
-	teamCount = 2
-	meetCount = 1
-	groupCount = 1
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 2
+	meetCount := 1
+	groupCount := 1
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
+
+func TestCreateGroupTournamentVariation3(t *testing.T) {
 	// Test a group tournament with 16 teams in 2 groups that meet each other 4 times
-	teamCount = 16
-	meetCount = 4
-	groupCount = 2
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 16
+	meetCount := 4
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
-	// Test a group tournament with 320 teams in 16 groups that meet each other 40 times
-	teamCount = 320
-	meetCount = 40
-	groupCount = 16
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+}
+
+func TestCreateGroupTournamentVariation4(t *testing.T) {
+	// Test a group tournament with 21 teams in 4 groups that meet each other 1 times
+	teamCount := 21
+	meetCount := 1
+	groupCount := 4
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
+
+func TestCreateGroupTournamentVariation5(t *testing.T) {
 	// Test a group tournament with 18 teams in 2 groups that meet each other 4 times
-	teamCount = 18
-	meetCount = 4
-	groupCount = 2
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 18
+	meetCount := 4
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
+
+func TestCreateGroupTournamentVariation6(t *testing.T) {
 	// Test a group tournament with 7 teams in 2 groups that meet each other 1 time
-	teamCount = 7
-	meetCount = 1
-	groupCount = 2
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 7
+	meetCount := 1
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
 
+func TestCreateGroupTournamentVariation7(t *testing.T) {
 	// Test a group tournament with 33 teams in 2 groups that meet each other 1 time
-	teamCount = 33
-	meetCount = 1
-	groupCount = 2
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 33
+	meetCount := 1
+	groupCount := 2
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
+}
 
+func TestCreateGroupTournamentVariation8(t *testing.T) {
 	// Test a group tournament with 2 teams in 1 group that meet each other 1 time
-	teamCount = 2
-	meetCount = 1
-	groupCount = 1
-	tournament = CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
+	teamCount := 2
+	meetCount := 1
+	groupCount := 1
+	tournament := CreateTournament(teamCount, meetCount, groupCount, int(TournamentTypeGroup))
 	assertGroupTournament(t, tournament, teamCount, meetCount, groupCount)
 }
 
@@ -99,6 +118,20 @@ func assertGroupTournament(t *testing.T, tournament TournamentInterface, teamCou
 	for _, game := range tournament.GetGames() {
 		if game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
 			t.Errorf("Two teams with the same ID are facing each other %d vs %d", game.GetHomeTeam().GetID(), game.GetAwayTeam().GetID())
+		}
+	}
+
+	for _, group := range tournament.GetGroups() {
+		for _, groupGame := range *group.GetGames() {
+			found := false
+			for _, game := range tournament.GetGames() {
+				if game.GetID() == groupGame.GetID() {
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("A game is present in a group which is not present in the tournament: %d", groupGame.GetID())
+			}
 		}
 	}
 }

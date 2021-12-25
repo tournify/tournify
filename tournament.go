@@ -456,9 +456,7 @@ func CreateGroupTournamentFromGroups(groups []GroupInterface, meetCount int) Tou
 			var removedGames []GameInterface
 			games, removedGames = removeTempGames(games, removedGames, tempID)
 			for _, removedGame := range removedGames {
-				for i := 0; i < len(groups); i++ {
-					groups[i].RemoveGame(removedGame)
-				}
+				groups[gi].RemoveGame(removedGame)
 			}
 		}
 	}
@@ -468,7 +466,9 @@ func CreateGroupTournamentFromGroups(groups []GroupInterface, meetCount int) Tou
 func removeTempGames(games []GameInterface, removedGames []GameInterface, tempID int) ([]GameInterface, []GameInterface) {
 	for i := 0; i < len(games); i++ {
 		if games[i].GetHomeTeam().GetID() == tempID || games[i].GetAwayTeam().GetID() == tempID {
-			return removeTempGames(append(games[:i], games[i+1:]...), append(removedGames, games[i]), tempID)
+			removedGames = append(removedGames, games[i])
+			tmpGames := append(games[:i], games[i+1:]...)
+			return removeTempGames(tmpGames, removedGames, tempID)
 		}
 	}
 	return games, removedGames
