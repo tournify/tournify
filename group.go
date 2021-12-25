@@ -11,6 +11,7 @@ type GroupInterface interface {
 	GetGames() *[]GameInterface
 	AppendGames(games []GameInterface)
 	AppendGame(game GameInterface)
+	RemoveGame(game GameInterface)
 	AppendTeams(teams []TeamInterface)
 	AppendTeam(team TeamInterface)
 	Print() string
@@ -46,6 +47,15 @@ func (t *Group) AppendGames(games []GameInterface) {
 // AppendGame takes a single game and appends it to the Games slice
 func (t *Group) AppendGame(game GameInterface) {
 	t.Games = append(t.Games, game)
+}
+
+// RemoveGame takes a single game and removes it to the Games slice
+func (t *Group) RemoveGame(game GameInterface) {
+	for i := 0; i < len(t.Games); i++ {
+		if t.Games[i].GetID() == game.GetID() {
+			t.Games = append(t.Games[:i], t.Games[i+1:]...)
+		}
+	}
 }
 
 // AppendTeams adds a slice of teams to the Teams slice

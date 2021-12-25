@@ -453,19 +453,25 @@ func CreateGroupTournamentFromGroups(groups []GroupInterface, meetCount int) Tou
 			}
 		}
 		if uneven {
-			games = removeTempGames(games, tempID)
+			var removedGames []GameInterface
+			games, removedGames = removeTempGames(games, removedGames, tempID)
+			for _, removedGame := range removedGames {
+				for i := 0; i < len(groups); i++ {
+					groups[i].RemoveGame(removedGame)
+				}
+			}
 		}
 	}
 	return &Tournament{Groups: groups, Games: games, Teams: teams, Type: TournamentTypeGroup}
 }
 
-func removeTempGames(games []GameInterface, tempID int) []GameInterface {
+func removeTempGames(games []GameInterface, removedGames []GameInterface, tempID int) ([]GameInterface, []GameInterface) {
 	for i := 0; i < len(games); i++ {
 		if games[i].GetHomeTeam().GetID() == tempID || games[i].GetAwayTeam().GetID() == tempID {
-			return removeTempGames(append(games[:i], games[i+1:]...), tempID)
+			return removeTempGames(append(games[:i], games[i+1:]...), append(removedGames, games[i]), tempID)
 		}
 	}
-	return games
+	return games, removedGames
 }
 
 func generateTempID(teams []TeamInterface, tempID int) int {
