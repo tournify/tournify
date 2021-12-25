@@ -128,43 +128,52 @@ func GetGroupStats(group GroupInterface, winPoints int, lossPoints int, tiePoint
 	var groupStats []TeamStatsInterface
 	teamStats := map[int]*TeamStats{}
 
-	for _, game := range *group.GetGames() {
-		if _, ok := teamStats[game.GetHomeTeam().GetID()]; !ok {
-			teamStats[game.GetHomeTeam().GetID()] = &TeamStats{
+	if len(*group.GetGames()) == 0 {
+		for _, team := range *group.GetTeams() {
+			teamStats[team.GetID()] = &TeamStats{
 				Group: group,
-				Team:  game.GetHomeTeam(),
+				Team:  team,
 			}
 		}
-		// Calculate stats for the home team in every game
-		teamStats[game.GetHomeTeam().GetID()].PointsFor += game.GetHomeScore().GetPoints()
-		teamStats[game.GetHomeTeam().GetID()].PointsAgainst += game.GetAwayScore().GetPoints()
-		if game.GetHomeScore().GetPoints() > game.GetAwayScore().GetPoints() {
-			teamStats[game.GetHomeTeam().GetID()].Wins++
-		} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
-			teamStats[game.GetHomeTeam().GetID()].Ties++
-		} else {
-			teamStats[game.GetHomeTeam().GetID()].Losses++
-		}
-
-		teamStats[game.GetHomeTeam().GetID()].Played++
-
-		// Calculate stats for the away team in every game
-		if _, ok := teamStats[game.GetAwayTeam().GetID()]; !ok {
-			teamStats[game.GetAwayTeam().GetID()] = &TeamStats{
-				Group: group,
-				Team:  game.GetAwayTeam(),
+	} else {
+		for _, game := range *group.GetGames() {
+			if _, ok := teamStats[game.GetHomeTeam().GetID()]; !ok {
+				teamStats[game.GetHomeTeam().GetID()] = &TeamStats{
+					Group: group,
+					Team:  game.GetHomeTeam(),
+				}
 			}
+			// Calculate stats for the home team in every game
+			teamStats[game.GetHomeTeam().GetID()].PointsFor += game.GetHomeScore().GetPoints()
+			teamStats[game.GetHomeTeam().GetID()].PointsAgainst += game.GetAwayScore().GetPoints()
+			if game.GetHomeScore().GetPoints() > game.GetAwayScore().GetPoints() {
+				teamStats[game.GetHomeTeam().GetID()].Wins++
+			} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
+				teamStats[game.GetHomeTeam().GetID()].Ties++
+			} else {
+				teamStats[game.GetHomeTeam().GetID()].Losses++
+			}
+
+			teamStats[game.GetHomeTeam().GetID()].Played++
+
+			// Calculate stats for the away team in every game
+			if _, ok := teamStats[game.GetAwayTeam().GetID()]; !ok {
+				teamStats[game.GetAwayTeam().GetID()] = &TeamStats{
+					Group: group,
+					Team:  game.GetAwayTeam(),
+				}
+			}
+			teamStats[game.GetAwayTeam().GetID()].PointsFor += game.GetAwayScore().GetPoints()
+			teamStats[game.GetAwayTeam().GetID()].PointsAgainst += game.GetHomeScore().GetPoints()
+			if game.GetHomeScore().GetPoints() < game.GetAwayScore().GetPoints() {
+				teamStats[game.GetAwayTeam().GetID()].Wins++
+			} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
+				teamStats[game.GetAwayTeam().GetID()].Ties++
+			} else {
+				teamStats[game.GetAwayTeam().GetID()].Losses++
+			}
+			teamStats[game.GetAwayTeam().GetID()].Played++
 		}
-		teamStats[game.GetAwayTeam().GetID()].PointsFor += game.GetAwayScore().GetPoints()
-		teamStats[game.GetAwayTeam().GetID()].PointsAgainst += game.GetHomeScore().GetPoints()
-		if game.GetHomeScore().GetPoints() < game.GetAwayScore().GetPoints() {
-			teamStats[game.GetAwayTeam().GetID()].Wins++
-		} else if game.GetHomeScore().GetPoints() == game.GetAwayScore().GetPoints() {
-			teamStats[game.GetAwayTeam().GetID()].Ties++
-		} else {
-			teamStats[game.GetAwayTeam().GetID()].Losses++
-		}
-		teamStats[game.GetAwayTeam().GetID()].Played++
 	}
 
 	for _, t := range teamStats {
