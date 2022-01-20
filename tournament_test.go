@@ -176,18 +176,22 @@ func TestCreateEliminationTournament(t *testing.T) {
 	teamCount := 8
 	tournament := CreateTournament(teamCount, 0, 0, int(TournamentTypeElimination))
 	assertEliminationTournament(t, tournament, teamCount)
+
+	teamCount = 9
+	tournament = CreateTournament(teamCount, 0, 0, int(TournamentTypeElimination))
+	assertEliminationTournament(t, tournament, teamCount)
 }
 
-// assertGroupTournament ensures that a group tournament has been created as expected
+// assertEliminationTournament ensures that a group tournament has been created as expected
 func assertEliminationTournament(t *testing.T, tournament TournamentInterface, teamCount int) {
 	if len(tournament.GetTeams()) != teamCount {
 		t.Errorf("Team count does not match input")
 	}
 	if len(tournament.GetGames()) != NumberOfGamesForEliminationTournament(teamCount) {
-		t.Errorf("Game count does not match NumberOfGames calculation: %d != %d", len(tournament.GetGames()), NumberOfGamesForEliminationTournament(teamCount))
+		t.Errorf("Game count for team count %d does not match NumberOfGames calculation: %d != %d", teamCount, len(tournament.GetGames()), NumberOfGamesForEliminationTournament(teamCount))
 	}
 	for _, game := range tournament.GetGames() {
-		if game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
+		if (game.GetHomeTeam().GetID() != -1 && game.GetAwayTeam().GetID() != -1) && game.GetHomeTeam().GetID() == game.GetAwayTeam().GetID() {
 			t.Errorf("Two teams with the same ID are facing each other %d vs %d", game.GetHomeTeam().GetID(), game.GetAwayTeam().GetID())
 		}
 	}

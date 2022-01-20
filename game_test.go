@@ -76,11 +76,11 @@ func TestGameGetHomeAwayTeams(t *testing.T) {
 	game2 := Game{
 		ID: 1,
 	}
-	if game2.GetHomeTeam().GetID() != 0 {
-		t.Errorf("Home team ids does not match %d != %d\n", game2.GetHomeTeam().GetID(), 0)
+	if game2.GetHomeTeam().GetID() != -1 {
+		t.Errorf("Home team ids does not match %d != %d\n", game2.GetHomeTeam().GetID(), -1)
 	}
-	if game2.GetAwayTeam().GetID() != 0 {
-		t.Errorf("Away team ids does not match %d != %d\n", game2.GetAwayTeam().GetID(), 0)
+	if game2.GetAwayTeam().GetID() != -1 {
+		t.Errorf("Away team ids does not match %d != %d\n", game2.GetAwayTeam().GetID(), -1)
 	}
 }
 
@@ -113,8 +113,8 @@ func TestGameSetAwayTeam(t *testing.T) {
 		t.Errorf("Away team ids does not match %d != %d\n", game.GetAwayTeam().GetID(), awayTeam.GetID())
 	}
 
-	if game.GetHomeTeam().GetID() != 0 {
-		t.Errorf("Home team ids does not match %d != %d\n", game.GetHomeTeam().GetID(), 0)
+	if game.GetHomeTeam().GetID() != -1 {
+		t.Errorf("Home team ids does not match %d != %d\n", game.GetHomeTeam().GetID(), -1)
 	}
 
 	homeTeam := Team{ID: 22}
